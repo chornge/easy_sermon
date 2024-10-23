@@ -1,0 +1,10 @@
+[package]
+name = "easy_sermon"
+version = "0.0.1"
+edition = "2021"
+authors = ["Christian Mbaba"]
+
+[dependencies]
+cpal = "0.10"
+whisper-rs = "0.1"
+regex = "1"

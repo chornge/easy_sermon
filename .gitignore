@@ -1,0 +1,6 @@
+.env
+.model
+/target
+venv
+.venv
+.vscode
