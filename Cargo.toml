@@ -5,6 +5,6 @@ edition = "2021"
 authors = ["Christian Mbaba"]
 
 [dependencies]
-cpal = "0.10"
-whisper-rs = "0.1"
+cpal = "0.15.3"
+whisper-rs = "0.11.1"
 regex = "1"
