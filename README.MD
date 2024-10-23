@@ -6,7 +6,7 @@ An application that listens to a live audio stream, recognizes spoken Bible vers
 
 ## Features
 
-- **Audio Stream Listening**: Captures audio from the default input device.
+- **Audio Stream Listening**: Captures audio from an input device.
 - **Speech Recognition**: Utilizes the Whisper model to convert audio to text.
 - **Verse Detection**: Matches recognized text against Bible verse patterns using regex.
 
@@ -14,23 +14,23 @@ An application that listens to a live audio stream, recognizes spoken Bible vers
 
 - Rust (install via [rustup](https://rustup.rs/))
 - Audio input device (microphone)
-- Whisper model (ensure you have a compatible model downloaded)
+- Whisper model (ensure a compatible model is downloaded)
 
 ### Usage
 
-Build the project:
+Build project:
 
 ```
 cargo build --release
 ```
 
-Run the application:
+Run application:
 
 ```
 cargo run
 ```
 
-Speak Bible verses into your microphone. The application will identify and print recognized verses in the format
+Speak Bible verses into audio device. The application will identify and print recognized verses in the format:
 
 ```
 Identified scripture: Book Chapter:Verse
