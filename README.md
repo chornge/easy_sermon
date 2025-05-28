@@ -1,4 +1,4 @@
-![CI/CD](https://github.com/chornge/easy_sermon/actions/workflows/easy_sermon.yml/badge.svg?branch=main)
+![CI/CD](https://github.com/chornge/easy_sermon/actions/workflows/build.yml/badge.svg?branch=main)
 
 # Bible Detection Software
 
