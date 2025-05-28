@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Setup
+      - name: Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -20,6 +20,9 @@ jobs:
           override: true
           components: rustfmt
           profile: minimal
+        
+      - name: Unix Deps
+        run: sudo apt-get install libasound2-dev libavdevice-dev libavfilter-dev libavutil-dev # libsdl2-dev libavcodec-dev libavformat-dev
 
       - name: Build
         run: cargo build --release
@@ -29,4 +32,15 @@ jobs:
       
       - name: Test
         run: cargo test --release
+      
+      - name: Pythonv3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      
+      - name: Python Deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade setuptools wheel
+          if [ -f api/requirements.txt ]; then pip install -r api/requirements.txt; fi
       
