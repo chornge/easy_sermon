@@ -319,7 +319,7 @@ dependencies = [
 
 [[package]]
 name = "easy_sermon"
-version = "0.0.3"
+version = "0.1.0"
 dependencies = [
  "cpal",
  "regex",
