@@ -1,0 +1,10 @@
+wheel==0.42.0
+huggingface-hub==0.30.2
+numpy==1.26.4
+# pyaudio==0.2.14
+sounddevice==0.5.2
+tokenizers==0.21.0
+torch==2.2.2
+torchaudio==2.2.2
+torchvision==0.17.2
+transformers==4.51.3
