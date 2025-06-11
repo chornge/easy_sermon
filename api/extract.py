@@ -9,9 +9,10 @@ nlp = pipeline("ner", model=model, tokenizer=tokenizer)
 
 # transcript = "Romans twelve verses one and two"
 transcript = "Romans twelve verse three and four"
-# transcript = "Genesis 1:2"
-# transcript = "Ephesians chapter one and verse five"
-# transcript = "Galatians three verse five"
+# transcript = "John chapter 6, verse 6"
+# transcript = "Genesis chapter 1 verse 1"
+# transcript = "Ezra chapter 1 verse 1"
+
 # transcript = "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life"
 
 results = nlp(transcript)
