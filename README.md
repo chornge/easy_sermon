@@ -27,7 +27,7 @@ cargo build --release
 Run application:
 
 ```
-cargo run
+cargo run --release
 ```
 
 Speak Bible verses into audio device. The application will identify and print recognized verses in the format:
