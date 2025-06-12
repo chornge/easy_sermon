@@ -1,13 +1,7 @@
 import re
+from num2words import num2words
 
-ORDINALS = {
-    "first": "1",
-    "second": "2",
-    "third": "3",
-    "1st": "1",
-    "2nd": "2",
-    "3rd": "3",
-}
+ORDINALS = {"first": "1", "second": "2", "third": "3"}
 
 # List of Bible books (canonical order, lowercase for matching)
 BOOKS = [
@@ -80,6 +74,9 @@ BOOKS = [
     "revelation",
 ]
 
+# Generate number words up to 176 ("one hundred seventy-six" becomes "176")
+NUMBER_WORDS = {num2words(i).replace("-", " "): str(i) for i in range(1, 177)}
+
 # Build a regex pattern for book names
 BOOK_PATTERN = r"|".join(re.escape(book) for book in BOOKS)
 
@@ -87,31 +84,40 @@ BOOK_PATTERN = r"|".join(re.escape(book) for book in BOOKS)
 REFERENCE_PATTERN = re.compile(
     rf"\b(?:(first|second|third|\d(?:st|nd|rd)?)\s+)?"
     rf"({BOOK_PATTERN})\s+"
-    rf"(?:chapter\s+)?(\d+)[\s,:;-]*"
-    rf"(?:verse(?:s)?\s+)?(\d+)"
-    rf"(?:\s*(?:-|–|—|to|through)\s*(\d+))?",
+    rf"(?:chapter\s+)?(\w+)[\s,:;-]*"
+    rf"(?:verse(?:s)?\s+)?(\w+)"
+    rf"(?:\s*(?:-|–|—|to|through)\s*(\w+))?",
     re.IGNORECASE,
 )
+
+
+def word_to_number(word):
+    word = word.lower().replace("-", " ")
+    if word.isdigit():
+        return word
+    return NUMBER_WORDS.get(word)
 
 
 def extract_bible_references(text):
     matches = REFERENCE_PATTERN.findall(text)
     results = []
 
-    for match in matches:
-        ordinal, book, chapter, verse_start, verse_end = match
-
-        # Normalize ordinal prefix
+    for ordinal, book, chapter, verse_start, verse_end in matches:
         if ordinal:
             ordinal = ORDINALS.get(ordinal.lower(), ordinal)
             book = f"{ordinal} {book}"
         book = book.title().replace("Psalms", "Psalm")  # Normalize plural
 
-        # Format reference
+        chapter = word_to_number(chapter)
+        verse_start = word_to_number(verse_start)
+        verse_end = word_to_number(verse_end) if verse_end else None
+
+        if not chapter or not verse_start:
+            continue
+
+        reference = f"{book} {chapter}:{verse_start}"
         if verse_end:
-            reference = f"{book} {chapter}:{verse_start}-{verse_end}"
-        else:
-            reference = f"{book} {chapter}:{verse_start}"
+            reference += f"-{verse_end}"
 
         results.append(reference)
 
