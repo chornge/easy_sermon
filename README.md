@@ -14,24 +14,26 @@ An application that listens to a live audio stream, recognizes spoken Bible vers
 
 - Rust (install via [rustup](https://rustup.rs/))
 - Audio input device (microphone)
-- Whisper model (ensure a compatible model is downloaded)
+- Whisper model (`base.en`, `tiny.en`, etc)
 
 ### Usage
 
-Build project:
+Build:
 
 ```
 cargo build --release
 ```
 
-Run application:
+Run:
 
 ```
-cargo run --release
+python api/stream.py
 ```
 
-Speak Bible verses into audio device. The application will identify and print recognized verses in the format:
+Speak Bible verses into the audio device. The application will identify and print the recognized verses
 
 ```
-Identified scripture: Book Chapter:Verse
+"first john two and three" -> 1 John 2:3
+"second peter one verse two" -> 2 Peter 1:2
+"genesis one one exodus two two leviticus three three" -> [Genesis 1:1, Exodus 2:2, Leviticus 3:3]
 ```

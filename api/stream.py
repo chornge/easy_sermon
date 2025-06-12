@@ -3,7 +3,6 @@ import sounddevice as sd
 import numpy as np
 import tempfile
 import scipy.io.wavfile
-import time
 import warnings
 
 from reference import extract_bible_references
