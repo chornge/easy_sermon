@@ -22,7 +22,6 @@ def stream_bible_verses():
             references = extract_bible_references(text.strip())
             print(f"Listening in {duration}s increments. Press Ctrl+C to stop.")
             if references:
-                print(">>", references)
                 yield references
     except KeyboardInterrupt:
         print("\n🛑 Program stopped by user.")

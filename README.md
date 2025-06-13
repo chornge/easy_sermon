@@ -33,5 +33,5 @@ Speak Bible verses into the audio device. The application will identify and prin
 ```
 "first john two and three" -> 1 John 2:3
 "second peter one verse two" -> 2 Peter 1:2
-"genesis one one exodus two two leviticus three three" -> [Genesis 1:1, Exodus 2:2, Leviticus 3:3]
+"genesis one one exodus two two job three three" -> [Genesis 1:1, Exodus 2:2, Job 3:3]
 ```

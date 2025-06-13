@@ -8,7 +8,7 @@ fn main() {
     let stream = Command::new("uvicorn")
         .arg("api.main:app")
         .arg("--host")
-        .arg("0.0.0.0")
+        .arg("localhost")
         .arg("--port")
         .arg("31813")
         .arg("--reload")
