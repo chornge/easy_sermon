@@ -1,11 +1,10 @@
 import whisper
 import sounddevice as sd
-import numpy as np
 import tempfile
 import scipy.io.wavfile
 import warnings
 
-from reference import extract_bible_references
+from api.reference import extract_bible_references  # or `reference`
 
 model = whisper.load_model("base.en")
 
@@ -15,8 +14,23 @@ sample_rate = 16000
 warnings.filterwarnings("ignore", message="FP16 is not supported on CPU*")
 
 
+def stream_bible_verses():
+    try:
+        while True:
+            audio_chunk = record_audio(duration, sample_rate)
+            text = transcribe_audio(audio_chunk)
+            references = extract_bible_references(text.strip())
+            print(f"Listening in {duration}s increments. Press Ctrl+C to stop.")
+            if references:
+                print(">>", references)
+                yield references
+    except KeyboardInterrupt:
+        print("\n🛑 Program stopped by user.")
+    finally:
+        sd.stop()
+
+
 def record_audio(duration, sample_rate):
-    print(f"Recording {duration}s...")
     audio = sd.rec(
         int(duration * sample_rate), samplerate=sample_rate, channels=1, dtype="float32"
     )
@@ -31,11 +45,11 @@ def transcribe_audio(audio):
     return result["text"]
 
 
-print("Listening... Press Ctrl+C to stop.")
-try:
-    while True:
-        audio_chunk = record_audio(duration, sample_rate)
-        text = transcribe_audio(audio_chunk)
-        print(">>", extract_bible_references(text.strip()))
-except KeyboardInterrupt:
-    print("\nStopped.")
+if __name__ == "__main__":
+    try:
+        while True:
+            audio_chunk = record_audio(duration, sample_rate)
+            text = transcribe_audio(audio_chunk)
+            print(">>", extract_bible_references(text.strip()))
+    except KeyboardInterrupt:
+        print("\nProgram has stopped.")
