@@ -22,7 +22,7 @@ jobs:
           profile: minimal
         
       - name: Unix Deps
-        run: sudo apt-get install libasound2-dev libavdevice-dev libavfilter-dev libavutil-dev # libsdl2-dev libavcodec-dev libavformat-dev
+        run: sudo apt-get install -y libasound2-dev libavdevice-dev libavfilter-dev libavutil-dev # libsdl2-dev libavcodec-dev libavformat-dev
 
       - name: Build
         run: cargo build --release

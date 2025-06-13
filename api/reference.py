@@ -1,7 +1,14 @@
 import re
 from num2words import num2words
 
-ORDINALS = {"first": "1", "second": "2", "third": "3"}
+ORDINALS = {
+    "first": "1",
+    "second": "2",
+    "third": "3",
+    "1st": "1",
+    "2nd": "2",
+    "3rd": "3",
+}
 
 # List of Bible books (canonical order, lowercase for matching)
 BOOKS = [

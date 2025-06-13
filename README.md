@@ -27,10 +27,10 @@ cargo build --release
 Run:
 
 ```
-python api/stream.py
+cargo run --release
 ```
 
-Speak Bible verses into the audio device. The application will identify and print the recognized verses
+Speak Bible verses into the audio device. The application will identify and print the recognized verses:
 
 ```
 "first john two and three" -> 1 John 2:3
