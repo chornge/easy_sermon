@@ -1,8 +1,6 @@
 ![CI/CD](https://github.com/chornge/easy_sermon/actions/workflows/build.yml/badge.svg?branch=main)
 
-# Bible Detection Software
-
-An application that listens to a live audio stream, recognizes spoken Bible verses, and identifies the scripture in a structured format.
+An application that listens to a live audio stream, recognizes any Bible verses, and identifies the scripture in a structured format.
 
 ## Features
 
