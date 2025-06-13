@@ -16,7 +16,7 @@ warnings.filterwarnings("ignore", message="FP16 is not supported on CPU*")
 
 
 def record_audio(duration, sample_rate):
-    print(f"Recording {duration}s...")
+    print(f"Listening in {duration}s increments. Press Ctrl+C to stop.")
     audio = sd.rec(
         int(duration * sample_rate), samplerate=sample_rate, channels=1, dtype="float32"
     )
@@ -31,11 +31,10 @@ def transcribe_audio(audio):
     return result["text"]
 
 
-print("Listening... Press Ctrl+C to stop.")
 try:
     while True:
         audio_chunk = record_audio(duration, sample_rate)
         text = transcribe_audio(audio_chunk)
         print(">>", extract_bible_references(text.strip()))
 except KeyboardInterrupt:
-    print("\nStopped.")
+    print("\nProgram has stopped.")

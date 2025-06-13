@@ -1,10 +1,8 @@
 use reqwest::Client;
 use serde_json::json;
 use std::error::Error;
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio::net::TcpStream;
-
 use std::process::Command;
+use tokio::{io::AsyncReadExt, io::AsyncWriteExt, net::TcpStream};
 
 fn main() {
     let stream = Command::new("python3")
@@ -20,7 +18,7 @@ fn main() {
 async fn _send_to_server(verse: &str) -> Result<(), Box<dyn Error>> {
     let client = Client::new();
     let response = client
-        .post("http://localhost:PORT/") // Replace with server's address & port
+        .post("http://localhost:PORT/")
         .json(&json!({ "bible_verse": verse }))
         .send()
         .await?;
