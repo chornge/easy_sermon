@@ -101,16 +101,6 @@ NUMBER_WORDS = {num2words(i).replace("-", " "): str(i) for i in range(1, 177)}
 # Regex pattern for book names
 BOOK_PATTERN = r"|".join(re.escape(book) for book in BOOKS)
 
-# Previous Regex pattern to match spoken references
-# REFERENCE_PATTERN = re.compile(
-#     rf"\b(?:(first|second|third|\d(?:st|nd|rd)?)\s+)?"
-#     rf"({BOOK_PATTERN})\s+"
-#     rf"(?:chapter\s+)?(\w+)[\s,:;-]*"
-#     rf"(?:verse(?:s)?\s+)?(\w+)"
-#     rf"(?:\s*(?:-|–|—|to|through)\s*(\w+))?",
-#     re.IGNORECASE,
-# )
-
 # Regex pattern to match spoken references
 REFERENCE_PATTERN = re.compile(
     rf"\b(?:(first|second|third|\d(?:st|nd|rd)?)\s+)?"
