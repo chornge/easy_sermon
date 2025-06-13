@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Easy-Sermon</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 50px;
+      }
+      .verse {
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        display: inline-block;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Pro-Sermon-Presenter (PSP)</h2>
+    <p>Click on any passage to auto-copy to clipboard</p>
+    <div id="verses">
+      {% for verse in verses %}
+      <div class="verse" onclick="copyToClipboard('{{ verse }}')">
+        {{ verse }}
+      </div>
+      {% endfor %}
+    </div>
+
+    <script>
+      function copyToClipboard(text) {
+        navigator.clipboard
+          .writeText(text)
+          .catch((err) => alert("Copy failed: " + err));
+      }
+
+      // Optional: Auto-refresh every 2 seconds
+      setInterval(() => window.location.reload(), 2000);
+    </script>
+  </body>
+</html>

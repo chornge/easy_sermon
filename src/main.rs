@@ -5,8 +5,13 @@ use std::process::Command;
 use tokio::{io::AsyncReadExt, io::AsyncWriteExt, net::TcpStream};
 
 fn main() {
-    let stream = Command::new("python3")
-        .arg("api/stream.py")
+    let stream = Command::new("uvicorn")
+        .arg("api.main:app")
+        .arg("--host")
+        .arg("0.0.0.0")
+        .arg("--port")
+        .arg("31813")
+        .arg("--reload")
         .status()
         .expect("failed to run api/stream.py");
 
