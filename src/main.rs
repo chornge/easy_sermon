@@ -8,9 +8,9 @@ fn main() {
     let stream = Command::new("uvicorn")
         .arg("api.main:app")
         .arg("--host")
-        .arg("localhost")
+        .arg("0.0.0.0")
         .arg("--port")
-        .arg("31813")
+        .arg("80")
         .arg("--reload")
         .status()
         .expect("failed to run api/stream.py");
