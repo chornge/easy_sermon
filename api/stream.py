@@ -6,7 +6,7 @@ import warnings
 
 from api.reference import extract_bible_references  # or `reference`
 
-model = whisper.load_model("base.en")
+model = whisper.load_model("small.en")
 
 # Config Settings
 duration = 5  # seconds per chunk

@@ -12,7 +12,7 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 
 - Rust (install via [rustup](https://rustup.rs/))
 - Audio input device (microphone)
-- Whisper model (`base.en`, `tiny.en`, etc)
+- Whisper model (`base.en`, `small.en`, `tiny.en`, etc)
 
 ### Usage
 
