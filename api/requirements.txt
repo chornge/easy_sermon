@@ -11,4 +11,5 @@ torch==2.2.2
 torchaudio==2.2.2
 torchvision==0.17.2
 transformers==4.51.3
+uvicorn==0.29.0
 word2number==1.1
