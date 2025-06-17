@@ -11,16 +11,4 @@ fn main() {
     if !model.success() {
         panic!("Model download failed");
     }
-
-    // On macOS, Python sometimes doesn't inherit system certs correctly.
-    println!("cargo:rerun-if-changed=get-certificates.sh");
-
-    let certs = Command::new("bash")
-        .arg("get-certificates.sh")
-        .status()
-        .expect("Failed to run get-certificates.sh");
-
-    if !certs.success() {
-        panic!("Installing missing certs into Python environment failed");
-    }
 }
