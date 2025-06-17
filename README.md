@@ -14,7 +14,7 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 - Python (`v3.10`)
 - Audio input device (microphone, etc)
 - FFMPEG (`brew install ffmpeg` on macOS)
-- Whisper model (`tiny.en`, `base.en`, `small.en`, etc)
+- [Whisper](https://github.com/openai/whisper) (`tiny.en`, `base.en`, `small.en`, etc)
 
 ## Usage
 
@@ -22,7 +22,7 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 git clone https://github.com/chornge/easy_sermon.git
 ```
 
-On macOS, sometimes system certs need to be manually installed:
+On macOS only - manually install system certs, run:
 
 ```
 chmod +x get-certificates.sh
@@ -36,7 +36,7 @@ Run:
 cargo run --release
 ```
 
-Navigate to `http://localhost` on the browser. Allow microphone access (if the prompt pops up). Speak Bible verses - Book, Chapter, Verse(s):
+Navigate to `http://localhost` on the browser. Allow microphone access (if the prompt pops up).
 
 ```
 "first john two and three" -> [1 John 2:3]
