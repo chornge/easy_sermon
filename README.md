@@ -11,20 +11,20 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 ## Requirements
 
 - Rust (install via [rustup](https://rustup.rs/))
-- Audio input device (microphone)
-- Whisper model (`base.en`, `tiny.en`, etc)
+- Python (`v3.10`)
+- Audio input device (microphone, speaker, etc)
+- FFMPEG (`brew install ffmpeg` on macOS)
+- Whisper model (`tiny.en`, `base.en`, `small.en`, etc)
 
-### Usage
-
-Build:
-
-```
-cargo build --release
-```
-
-Run:
+## Usage
 
 ```
+git clone https://github.com/chornge/easy_sermon.git
+
+chmod +x get-certificates.sh
+
+bash get-certificates.sh
+
 cargo run --release
 ```
 
