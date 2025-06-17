@@ -4,7 +4,7 @@ import tempfile
 import scipy.io.wavfile
 import warnings
 
-from api.reference import extract_bible_references  # or `reference`
+from api.reference import extract_bible_references
 
 model = whisper.load_model("small.en")
 
@@ -30,6 +30,7 @@ def stream_bible_verses():
 
 
 def record_audio(duration, sample_rate):
+    # sd.default.device = ("iMac Microphone", "iMac Speakers") # Input, Output
     audio = sd.rec(
         int(duration * sample_rate), samplerate=sample_rate, channels=1, dtype="float32"
     )
