@@ -22,6 +22,10 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 ```
 git clone https://github.com/chornge/easy_sermon.git
 
+chmod +x get-certificates.sh
+
+bash get-certificates.sh
+
 cargo run --release
 ```
 
