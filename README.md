@@ -22,7 +22,7 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 git clone https://github.com/chornge/easy_sermon.git
 ```
 
-On macOS, sometimes system certs need to be manually installed:
+On macOS only - manually install system certs, run:
 
 ```
 chmod +x get-certificates.sh
