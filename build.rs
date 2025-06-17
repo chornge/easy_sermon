@@ -1,15 +1,26 @@
 use std::process::Command;
 
 fn main() {
-    // Optional: Rebuild only if api/download.py changes
     println!("cargo:rerun-if-changed=api/download.py");
 
-    let status = Command::new("python3")
+    let model = Command::new("python3")
         .arg("api/download.py")
         .status()
-        .expect("failed to run download.py");
+        .expect("Failed to run download.py");
 
-    if !status.success() {
+    if !model.success() {
         panic!("Model download failed");
+    }
+
+    // On macOS, Python sometimes doesn't inherit system certs correctly.
+    println!("cargo:rerun-if-changed=get-certificates.sh");
+
+    let certs = Command::new("bash")
+        .arg("get-certificates.sh")
+        .status()
+        .expect("Failed to run get-certificates.sh");
+
+    if !certs.success() {
+        panic!("Installing missing certs into Python environment failed");
     }
 }
