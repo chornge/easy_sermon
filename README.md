@@ -16,8 +16,7 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 - FFMPEG (`brew install ffmpeg` on macOS)
 - Whisper model (`tiny.en`, `base.en`, `small.en`, etc)
 
-### Usage
-
+## Usage
 
 ```
 git clone https://github.com/chornge/easy_sermon.git
