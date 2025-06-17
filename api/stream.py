@@ -30,6 +30,7 @@ def stream_bible_verses():
 
 
 def record_audio(duration, sample_rate):
+    # sd.default.device = ("Mac Pro Speakers", "RCA Director")
     audio = sd.rec(
         int(duration * sample_rate), samplerate=sample_rate, channels=1, dtype="float32"
     )
