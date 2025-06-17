@@ -1,5 +1,4 @@
 import re
-from num2words import num2words
 from word2number import w2n
 
 ORDINALS = {
