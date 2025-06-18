@@ -1,6 +1,6 @@
 import asyncio
-import websockets
 import json
+import websockets
 
 PRO7_HOST = "localhost"
 PRO7_PORT = 1025
