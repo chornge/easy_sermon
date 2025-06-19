@@ -1,7 +1,6 @@
 use reqwest::Client;
 use serde_json::json;
-use std::error::Error;
-use std::process::Command;
+use std::{error::Error, process::Command};
 use tokio::{io::AsyncReadExt, io::AsyncWriteExt, net::TcpStream};
 
 fn main() {

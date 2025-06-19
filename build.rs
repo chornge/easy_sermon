@@ -1,15 +1,14 @@
 use std::process::Command;
 
 fn main() {
-    // Optional: Rebuild only if api/download.py changes
-    println!("cargo:rerun-if-changed=api/download.py");
+    println!("cargo:rerun-if-changed=api/download_vosk.py");
 
-    let status = Command::new("python3")
-        .arg("api/download.py")
+    let model = Command::new("python3")
+        .arg("api/download_vosk.py")
         .status()
-        .expect("failed to run download.py");
+        .expect("Failed to run api/download_vosk.py");
 
-    if !status.success() {
-        panic!("Model download failed");
+    if !model.success() {
+        panic!("Vosk model download failed");
     }
 }

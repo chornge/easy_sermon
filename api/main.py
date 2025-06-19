@@ -2,32 +2,21 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from contextlib import asynccontextmanager
 import os
 from pathlib import Path
 import threading
-from contextlib import asynccontextmanager
 
-from api.stream import stream_bible_verses
+from api.stream import start_vosk_stream, detected_verses
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
-detected_verses = []
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    def run_stream():
-        print("🎤 Audio stream starting")
-        for verse_list in stream_bible_verses():
-            print("✅ Got:", verse_list)
-            for verse in verse_list:
-                if verse not in detected_verses:
-                    detected_verses.append(verse)
-
-    threading.Thread(target=run_stream, daemon=True).start()
-    yield  # Let FastAPI run
-    # No teardown needed
+    threading.Thread(target=start_vosk_stream, daemon=True).start()
+    yield
 
 
 app = FastAPI(lifespan=lifespan)

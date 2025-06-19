@@ -1,54 +1,71 @@
-import whisper
+import os
+from pathlib import Path
+import queue
 import sounddevice as sd
-import tempfile
-import scipy.io.wavfile
-import warnings
 
-from api.reference import extract_bible_references  # or `reference`
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from vosk import Model, KaldiRecognizer
 
-model = whisper.load_model("base.en")
+from api.reference import extract_bible_reference
 
-# Config Settings
-duration = 5  # seconds per chunk
-sample_rate = 16000
-warnings.filterwarnings("ignore", message="FP16 is not supported on CPU*")
+# Global settings
+SAMPLE_RATE = 16000
+MODEL_PATH = "models/vosk-model-en-us-0.22"
+BASE_DIR = Path(__file__).resolve().parent.parent
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+
+app = FastAPI()
+
+# Load Vosk model
+if not os.path.exists(MODEL_PATH):
+    raise FileNotFoundError(f"Model not found at {MODEL_PATH}")
+model = Model(MODEL_PATH)
+recognizer = KaldiRecognizer(model, SAMPLE_RATE)
+
+# Shared queue and result buffer
+audio_queue = queue.Queue()
+result_text = ""
+
+detected_verses = []
 
 
-def stream_bible_verses():
-    try:
+def start_vosk_stream():
+    def callback(indata, frames, time, status):
+        if status:
+            print(status, flush=True)
+        audio_queue.put(bytes(indata))
+
+    with sd.RawInputStream(
+        samplerate=SAMPLE_RATE,
+        blocksize=8000,
+        dtype="int16",
+        channels=1,
+        callback=callback,
+    ):
+        print("🎙️ Listening for Bible references...")
         while True:
-            audio_chunk = record_audio(duration, sample_rate)
-            text = transcribe_audio(audio_chunk)
-            references = extract_bible_references(text.strip())
-            print(f"Listening in {duration}s increments. Press Ctrl+C to stop.")
-            if references:
-                yield references
-    except KeyboardInterrupt:
-        print("\n🛑 Program stopped by user.")
-    finally:
-        sd.stop()
+            data = audio_queue.get()
+            if recognizer.AcceptWaveform(data):
+                result = recognizer.Result()
+                text = eval(result).get("text", "")
+                print("🔍 Transcribed text:", text)
+                if text:
+                    references = extract_bible_reference(text)
+                    print("✅ Got:", references)
+                    for ref in references:
+                        if ref not in detected_verses:
+                            detected_verses.append(ref)
 
 
-def record_audio(duration, sample_rate):
-    audio = sd.rec(
-        int(duration * sample_rate), samplerate=sample_rate, channels=1, dtype="float32"
+@app.get("/transcript")
+def get_transcript():
+    return {"transcript": result_text.strip()}
+
+
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    return templates.TemplateResponse(
+        "index.html", {"request": request, "verses": detected_verses}
     )
-    sd.wait()
-    return audio.squeeze()
-
-
-def transcribe_audio(audio):
-    with tempfile.NamedTemporaryFile(suffix=".wav") as f:
-        scipy.io.wavfile.write(f.name, sample_rate, audio)
-        result = model.transcribe(f.name)
-    return result["text"]
-
-
-if __name__ == "__main__":
-    try:
-        while True:
-            audio_chunk = record_audio(duration, sample_rate)
-            text = transcribe_audio(audio_chunk)
-            print(">>", extract_bible_references(text.strip()))
-    except KeyboardInterrupt:
-        print("\nProgram has stopped.")

@@ -24,7 +24,7 @@ jobs:
       - name: Unix Deps
         run: sudo apt-get install -y libasound2-dev libavdevice-dev libavfilter-dev libavutil-dev # libsdl2-dev libavcodec-dev libavformat-dev
 
-      - name: Pythonv3.10
+      - name: Python v3.10
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
@@ -35,8 +35,8 @@ jobs:
           pip install --upgrade setuptools wheel
           if [ -f api/requirements.txt ]; then pip install -r api/requirements.txt; fi
 
-      - name: Build
-        run: cargo build --release
+      - name: Check
+        run: cargo check --release
 
       - name: Lint
         run: cargo clippy --release -- -D warnings

@@ -1,6 +1,4 @@
 import re
-
-from num2words import num2words
 from word2number import w2n
 
 ORDINALS = {
@@ -12,7 +10,6 @@ ORDINALS = {
     "3rd": "3",
 }
 
-# List of Bible books (canonical order, lowercase for matching)
 BOOKS = [
     "genesis",
     "exodus",
@@ -83,7 +80,6 @@ BOOKS = [
     "revelation",
 ]
 
-# Books and their valid ordinals (e.g., "john" can be 1st or 2nd or 3rd)
 ORDINAL_RULES = {
     "john": 3,
     "peter": 2,
@@ -95,19 +91,14 @@ ORDINAL_RULES = {
     "chronicles": 2,
 }
 
-# Accept number words like "one hundred twenty" up to 176
-NUMBER_WORDS = {num2words(i).replace("-", " "): str(i) for i in range(1, 177)}
+BOOK_PATTERN = r"|".join(sorted([re.escape(b) for b in BOOKS], key=lambda x: -len(x)))
 
-# Regex pattern for book names
-BOOK_PATTERN = r"|".join(re.escape(book) for book in BOOKS)
-
-# Regex pattern to match spoken references
 REFERENCE_PATTERN = re.compile(
     rf"\b(?:(first|second|third|\d(?:st|nd|rd)?)\s+)?"
-    rf"({BOOK_PATTERN})\s+"
-    rf"(?:chapter\s+)?([\w\s\-]+?)[\s,:;-]*"
-    rf"(?:verse(?:s)?\s+)?([\w\s\-]+)?"
-    rf"(?:\s*(?:-|–|—|to|through)\s*([\w\s\-]+))?",
+    rf"({BOOK_PATTERN})"
+    rf"(?:\s+chapter)?\s+([\w\s\-]+?)"
+    rf"(?:\s+verse(?:s)?\s+([\w\s\-]+?))?"
+    rf"(?:\s*(?:-|–|—|to|through|until|and)\s+([\w\s\-]+))?\b",
     re.IGNORECASE,
 )
 
@@ -119,47 +110,36 @@ def word_to_number(word):
     try:
         return str(w2n.word_to_num(word))
     except ValueError:
-        if word.isdigit():
-            return word
-        return None
+        return word if word.isdigit() else None
 
 
-def extract_bible_references(text):
-    matches = REFERENCE_PATTERN.findall(text)
+def extract_bible_reference(text):
     results = []
+    for match in REFERENCE_PATTERN.findall(text):
+        ordinal, book_base, chapter_raw, verse_start_raw, verse_end_raw = match
 
-    for ordinal, book_base, chapter_raw, verse_start_raw, verse_end_raw in matches:
         book_base_lower = book_base.lower()
-        ordinal_num = None
-
         if ordinal:
             ordinal_num = ORDINALS.get(ordinal.lower(), ordinal)
             try:
                 ordinal_int = int(ordinal_num)
-            except ValueError:
-                continue
-
-            # Validate ordinal based on rules
-            max_valid = ORDINAL_RULES.get(book_base_lower)
-            if not max_valid or ordinal_int > max_valid:
-                print(f"⛔ Invalid ordinal for book: {ordinal} {book_base}")
-                continue
-            book = f"{ordinal_num} {book_base_lower}"
-        else:
-            if book_base_lower in ORDINAL_RULES:
-                # Only allow unprefixed 'john'
-                if book_base_lower != "john":
-                    print(f"⛔ Missing ordinal for book: {book_base}")
+                if (
+                    book_base_lower not in ORDINAL_RULES
+                    or ordinal_int > ORDINAL_RULES[book_base_lower]
+                ):
                     continue
-                book = "john"
-            else:
-                book = book_base_lower
+                book = f"{ordinal_num} {book_base_lower}"
+            except:
+                continue
+        else:
+            if book_base_lower in ORDINAL_RULES and book_base_lower != "john":
+                continue
+            book = book_base_lower
 
-        # Capitalize book properly
         book = book.title().replace("Psalms", "Psalm")
 
         chapter = word_to_number(chapter_raw)
-        verse_start = word_to_number(verse_start_raw)
+        verse_start = word_to_number(verse_start_raw) if verse_start_raw else "1"
         verse_end = word_to_number(verse_end_raw) if verse_end_raw else None
 
         if not chapter or not verse_start:
@@ -171,3 +151,22 @@ def extract_bible_references(text):
         results.append(reference)
 
     return results
+
+
+if __name__ == "__main__":
+    samples = [
+        "at genesis chapter two verses eight and nine",
+        "as it says in john three verse sixteen",
+        "let's take a look at romans five",
+        "ezekiel chapter thirty three verse two",
+        "psalms eighty three verse thirty two",
+        "psalms one forty three verses two through seven",
+        "first corinthians thirteen four",
+        "third john one verse two",
+        "combining exodus one one leviticus one one and job three one into a module",
+        "open your bibles to revelation twenty two verse three",
+    ]
+
+    for line in samples:
+        print(f"🔍 Audio: {line}")
+        print("✅ Got:", extract_bible_reference(line), "\n")
