@@ -1,4 +1,5 @@
 import re
+from fuzzywuzzy import process
 from word2number import w2n
 
 ORDINALS = {
@@ -95,11 +96,16 @@ BOOK_PATTERN = r"|".join(re.escape(book) for book in BOOKS)
 
 REFERENCE_PATTERN = re.compile(
     rf"\b(?:(first|second|third|\d(?:st|nd|rd)?)\s+)?"
-    rf"({BOOK_PATTERN})[\s,]+"
-    rf"(?:chapter\s+)?([\w\s\-]+?)\s*"
-    rf"(?:verse(?:s)?|vs|v|versus)?\s*([\w\s\-]+)?",
+    rf"({BOOK_PATTERN})\s+"
+    rf"(?:chapter\s+)?(\w+)[\s,:;-]*"
+    rf"(?:verse(?:s)?\s+)?(\w+)",
     re.IGNORECASE,
 )
+
+
+def fuzzy_match_book(book_candidate):
+    match, score = process.extractOne(book_candidate.lower(), BOOKS)
+    return match if score >= 80 else None
 
 
 def word_to_number(word):
@@ -134,10 +140,13 @@ def extract_bible_references(text):
     matches = REFERENCE_PATTERN.findall(text)
     results = []
 
+    # Pass 1: structured regex
     for ordinal, book_base, chapter_raw, verses_raw in matches:
-        book_base_lower = book_base.lower()
-        ordinal_num = None
+        book_base_fuzzy = fuzzy_match_book(book_base)
+        if not book_base_fuzzy:
+            continue
 
+        ordinal_num = None
         if ordinal:
             ordinal_num = ORDINALS.get(ordinal.lower(), ordinal)
             try:
@@ -145,30 +154,37 @@ def extract_bible_references(text):
             except ValueError:
                 continue
             if (
-                book_base_lower in ORDINAL_RULES
-                and ordinal_int > ORDINAL_RULES[book_base_lower]
+                book_base_fuzzy in ORDINAL_RULES
+                and ordinal_int > ORDINAL_RULES[book_base_fuzzy]
             ):
                 continue
-            book = f"{ordinal_num} {book_base_lower}"
+            book = f"{ordinal_num} {book_base_fuzzy}"
         else:
-            if book_base_lower in ORDINAL_RULES and book_base_lower != "john":
+            if book_base_fuzzy in ORDINAL_RULES and book_base_fuzzy != "john":
                 continue
-            book = book_base_lower
+            book = book_base_fuzzy
 
         book = book.title().replace("Psalms", "Psalm")
+
+        if not verses_raw and chapter_raw:
+            parts = chapter_raw.strip().split()
+            if len(parts) == 2:
+                chapter = word_to_number(parts[0])
+                verse_start = word_to_number(parts[1])
+                if chapter and verse_start:
+                    reference = f"{book} {chapter}:{verse_start}"
+                    results.append(reference)
+                    continue
 
         chapter = word_to_number(chapter_raw)
         if not chapter:
             continue
 
         if not verses_raw:
-            # Only chapter mentioned → default to verse 1
-            verse_start = "1"
-            reference = f"{book} {chapter}:{verse_start}"
+            reference = f"{book} {chapter}:1"
             results.append(reference)
             continue
 
-        # Handle "3 and 4", "4 through 6", "7 to 9", etc.
         parts = re.split(r"\s*(?:and|to|through|thru|until|-|–|—)\s*", verses_raw)
         if len(parts) == 1:
             verse_start = word_to_number(parts[0])
@@ -186,4 +202,41 @@ def extract_bible_references(text):
 
         results.append(reference)
 
+    # 🆕 Pass 2: Loose fallback — "Book word word" → Book Chapter:Verse
+    words = text.lower().split()
+    for i in range(len(words) - 2):
+        chunk = " ".join(words[i : i + 3])
+        match = re.match(r"([a-z]+)\s+([a-z]+)\s+([a-z]+)", chunk)
+        if not match:
+            continue
+        book_candidate, ch_word, v_word = match.groups()
+        book_name = fuzzy_match_book(book_candidate)
+        if not book_name:
+            continue
+        chapter = word_to_number(ch_word)
+        verse = word_to_number(v_word)
+        if chapter and verse:
+            reference = f"{book_name.title()} {chapter}:{verse}"
+            if reference not in results:
+                results.append(reference)
+
     return results
+
+
+if __name__ == "__main__":
+    samples = [
+        "at genesis chapter two verses eight and nine",
+        "as it says in john three sixteen",
+        "from romans five",
+        "ezekiel thirty three verse two",
+        "psalms eighty three verse thirty two",
+        "open to first corinthians chapter thirteen verse four",
+        "psalms one forty three verses two through seven",
+        "let's take a look at first corinthians thirteen four",
+        "third john one two",
+        "second kings seven five",
+    ]
+
+    for line in samples:
+        result = extract_bible_references(line)
+        print("✅ Got:", result)

@@ -5,8 +5,8 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 ## Features
 
 - **Audio Stream Listening**: Captures audio from an input device.
-- **Speech Recognition**: Utilizes the Whisper model to convert audio to text (listens in 5 second chunks).
-- **Verse Detection**: Matches recognized text against Bible verse patterns using regex.
+- **Speech Recognition**: Utilizes the Vosk model to convert audio to text.
+- **Verse Detection**: Matches recognized text against Bible verse patterns using Regex.
 
 ## Requirements
 
@@ -14,12 +14,16 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 - Python (`v3.10`)
 - Audio input device (microphone, etc)
 - FFMPEG (`brew install ffmpeg` on macOS)
-- [Whisper](https://github.com/openai/whisper) (`tiny.en`, `base.en`, `small.en`, etc)
+- [Vosk](https://github.com/alphacep/vosk-api) (`small`, `medium`, `large`, etc) - downloaded as part of build script
 
 ## Usage
 
 ```
 git clone https://github.com/chornge/easy_sermon.git
+cd ~/PATH/to/easysermon
+python3 -m venv venv
+source venv/bin/activate
+pip install -r api/requirements.txt
 ```
 
 On macOS only - manually install system certs, run:
@@ -39,13 +43,25 @@ cargo run --release
 Navigate to `http://localhost` on the browser. Allow microphone access (if the prompt pops up).
 
 ```
-"first john two and three" -> [1 John 2:3]
-"second peter one verse two" -> [2 Peter 1:2]
-"genesis one one exodus two two job three three" -> [Genesis 1:1, Exodus 2:2, Job 3:3]
+"as it says in john three sixteen" -> [John 3:16]
+"let's take a look at first corinthians thirteen four" -> [1 Corinthians 13:4]
+"combining exodus one one leviticus two two and job three three into a module" -> [Exodus 1:1, Leviticus 2:2, Job 3:3]
 ```
 
 Sometimes you may want to see the list of all connected audio devices. To show all input and output devices, run:
 
 ```
 python3 api/devices.py
+```
+
+To manually download a Vosk model, run:
+
+```
+python3 api/download_vosk.py
+```
+
+To manually download a Whisper model, run:
+
+```
+python3 api/download_whisper.py
 ```
