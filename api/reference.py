@@ -113,7 +113,7 @@ def word_to_number(word):
         return word if word.isdigit() else None
 
 
-def extract_bible_references(text):
+def extract_bible_reference(text):
     results = []
     for match in REFERENCE_PATTERN.findall(text):
         ordinal, book_base, chapter_raw, verse_start_raw, verse_end_raw = match
@@ -169,4 +169,4 @@ if __name__ == "__main__":
 
     for line in samples:
         print(f"🔍 Audio: {line}")
-        print("✅ Got:", extract_bible_references(line), "\n")
+        print("✅ Got:", extract_bible_reference(line), "\n")
