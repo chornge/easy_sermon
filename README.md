@@ -43,9 +43,9 @@ cargo run --release
 Navigate to `http://localhost` on the browser. Allow microphone access (if the prompt pops up).
 
 ```
-"as it says in john three sixteen" -> [John 3:16]
-"let's take a look at first corinthians thirteen four" -> [1 Corinthians 13:4]
-"combining exodus one one leviticus two two and job three three into a module" -> [Exodus 1:1, Leviticus 2:2, Job 3:3]
+"as it says in john three verse sixteen" -> [John 3:16]
+"let's take a look at romans five" -> [Romans 5:1]
+"combining exodus one one leviticus one one and job three one into a module" -> [Exodus 1:1, Leviticus 1:1, Job 3:1]
 ```
 
 Sometimes you may want to see the list of all connected audio devices. To show all input and output devices, run:
