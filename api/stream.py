@@ -44,7 +44,7 @@ def start_vosk_stream():
         channels=1,
         callback=callback,
     ):
-        print("🎙️ Listening for Bible references...")
+        print("Ready...🎙️...")
         while True:
             data = audio_queue.get()
             if recognizer.AcceptWaveform(data):
