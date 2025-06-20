@@ -4,7 +4,7 @@ import tempfile
 import warnings
 import whisper
 
-from api.reference import extract_bible_references
+from reference import extract_bible_reference
 
 model = whisper.load_model("small.en")
 
@@ -19,7 +19,7 @@ def stream_bible_verses():
         while True:
             audio_chunk = record_audio(duration, sample_rate)
             text = transcribe_audio(audio_chunk)
-            references = extract_bible_references(text.strip())
+            references = extract_bible_reference(text.strip())
             print(f"Listening in {duration}s increments. Press Ctrl+C to stop.")
             if references:
                 yield references
@@ -50,6 +50,6 @@ if __name__ == "__main__":
         while True:
             audio_chunk = record_audio(duration, sample_rate)
             text = transcribe_audio(audio_chunk)
-            print(">>", extract_bible_references(text.strip()))
+            print(">>", extract_bible_reference(text.strip()))
     except KeyboardInterrupt:
         print("\nProgram has stopped.")
