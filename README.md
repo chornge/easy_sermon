@@ -16,7 +16,8 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 - Python (`v3.10`)
 - Audio input device (microphone, etc)
 - FFMPEG (`brew install ffmpeg` on macOS)
-- [Vosk](https://github.com/alphacep/vosk-api) (`small`, `medium`, `large`, etc) - downloaded as part of build script
+- [Vosk](https://github.com/alphacep/vosk-api) (`small`, `medium`, `large`, etc) - downloaded as part of build script.
+- [Whisper](https://github.com/openai/whisper) (`tiny.en`, `base.en`, `small.en`, etc) - not needed unless testing with audio files/chunking audio streams.
 
 ## Usage
 
@@ -56,14 +57,16 @@ Sometimes you may want to see the list of all connected audio devices. To show a
 python3 api/devices.py
 ```
 
-To manually download a Vosk model, run:
+To manually download and test a Vosk model (streaming), run:
 
 ```
 python3 api/download_vosk.py
+python3 api/reference.py
 ```
 
-To manually download a Whisper model, run:
+To manually download and test a Whisper model (chunking), run:
 
 ```
 python3 api/download_whisper.py
+python3 api/chunk.py
 ```
