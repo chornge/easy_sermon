@@ -2,7 +2,9 @@
 
 An application that listens to a live audio stream, recognizes any Bible verses, and displays the scripture in a structured format.
 
-## Features
+## Architecture
+
+![Design Doc](design_doc.excalidraw.png)
 
 - **Audio Stream Listening**: Captures audio from an input device.
 - **Speech Recognition**: Utilizes the Vosk model to convert audio to text.
