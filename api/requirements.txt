@@ -1,5 +1,6 @@
 wheel==0.42.0
 fastapi==0.115.12
+fuzzywuzzy[speedup]==0.18.0
 huggingface-hub==0.30.2
 numpy==1.26.4
 openai-whisper==20240930
