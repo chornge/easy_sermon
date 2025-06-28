@@ -27,7 +27,7 @@ async fn _send_to_server(verse: &str) -> Result<(), Box<dyn Error>> {
         .send()
         .await?;
 
-    println!("Verse sent, Response: {:?}", response);
+    println!("Verse sent, Response: {response:?}");
     Ok(())
 }
 
@@ -52,6 +52,6 @@ async fn _send_to_propresenter(verse: &str, host: &str, port: u16) -> Result<(),
     let n = client_socket.read(&mut buffer).await?;
     let response = String::from_utf8_lossy(&buffer[..n]);
 
-    println!("Verse sent, Response: {:?}", response);
+    println!("Verse sent, Response: {response:?}");
     Ok(())
 }

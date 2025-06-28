@@ -8,7 +8,7 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 
 - **Audio Stream Listening**: Captures audio from an input device.
 - **Speech Recognition**: Utilizes the Vosk model to convert audio to text.
-- **Verse Detection**: Matches recognized text against Bible verse patterns using Regex.
+- **Verse Detection**: Matches texts against Bible verses using fuzzy-matching & regular expressions.
 
 ## Requirements
 
@@ -46,8 +46,11 @@ cargo run --release
 Navigate to `http://localhost` on the browser. Allow microphone access (if the prompt pops up).
 
 ```
-"as it says in john three verse sixteen" -> [John 3:16]
+"inside third john one verse two" -> [3 John 1:2]
 "let's take a look at romans five" -> [Romans 5:1]
+"as it says in john three verse sixteen" -> [John 3:16]
+"at genesis chapter two verses eight and nine" -> [Genesis 2:8-9]
+"first corinthians thirteen verse four" -> [First Corinthians 13:4]
 "combining exodus one one leviticus one one and job three one into a module" -> [Exodus 1:1, Leviticus 1:1, Job 3:1]
 ```
 
