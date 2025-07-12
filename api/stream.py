@@ -1,6 +1,7 @@
 import os
-from pathlib import Path
+import json
 import queue
+from pathlib import Path
 import sounddevice as sd
 
 from fastapi import FastAPI, Request
@@ -24,7 +25,6 @@ if not os.path.exists(MODEL_PATH):
 model = Model(MODEL_PATH)
 recognizer = KaldiRecognizer(model, SAMPLE_RATE)
 
-# Shared queue and result buffer
 audio_queue = queue.Queue()
 result_text = ""
 
@@ -34,12 +34,12 @@ detected_verses = []
 def start_vosk_stream():
     def callback(indata, frames, time, status):
         if status:
-            print(status, flush=True)
+            print("", status, flush=True)
         audio_queue.put(bytes(indata))
 
     with sd.RawInputStream(
         samplerate=SAMPLE_RATE,
-        blocksize=8000,
+        blocksize=4000, # smaller block size for lower latency (~0.25s) instead of 8000
         dtype="int16",
         channels=1,
         callback=callback,
@@ -48,20 +48,26 @@ def start_vosk_stream():
         while True:
             data = audio_queue.get()
             if recognizer.AcceptWaveform(data):
-                result = recognizer.Result()
-                text = eval(result).get("text", "")
-                print("🔍 Transcribed text:", text)
-                if text:
-                    references = extract_bible_reference(text)
-                    print("✅ Got:", references)
-                    for ref in references:
-                        if ref not in detected_verses:
-                            detected_verses.append(ref)
+                j = recognizer.Result()
+            else:
+                j = recognizer.PartialResult()
+
+            output = json.loads(j)
+            text = output.get("partial") or output.get("text", "")
+            text = text.strip()
+            if not text:
+                continue
+
+            print("🔍 Transcribed text:", text)
+            for ref in extract_bible_reference(text):
+                if ref not in detected_verses:
+                    detected_verses.append(ref)
+                    print("✅ Got:", ref)
 
 
 @app.get("/transcript")
 def get_transcript():
-    return {"transcript": result_text.strip()}
+    return {"transcript": detected_verses}
 
 
 @app.get("/", response_class=HTMLResponse)
