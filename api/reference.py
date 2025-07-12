@@ -9,9 +9,9 @@ ORDINALS = {
     "second": "2",
     "Third": "3",
     "third": "3",
-    "1st": "1",
-    "2nd": "2",
-    "3rd": "3",
+    "1st": "I",
+    "2nd": "II",
+    "3rd": "III",
 }
 
 ORDINAL_RULES = {
@@ -36,17 +36,11 @@ BIBLE_STRUCTURE = {
     "Judges": [36,23,31,24,31,40,25,35,57,18,40,15,25,20,20,31,13,31,30,48,25],
     "Ruth": [22,23,18,22],
     "1 Samuel": [28,36,21,22,12,21,17,22,24,31,15,25,23,52,35,23,58,30,24,42,15,23,29,22,44,25,12,25,11,31,13],
-    "First Samuel": [28,36,21,22,12,21,17,22,24,31,15,25,23,52,35,23,58,30,24,42,15,23,29,22,44,25,12,25,11,31,13],
     "2 Samuel": [27,32,39,12,25,23,29,18,13,19,27,31,39,33,37,23,29,33,43,26,22,51,39,25],
-    "Second Samuel": [27,32,39,12,25,23,29,18,13,19,27,31,39,33,37,23,29,33,43,26,22,51,39,25],
     "1 Kings": [53,46,28,34,18,38,51,66,28,29,43,33,34,31,34,34,24,46,21,43,29,53],
-    "First Kings": [53,46,28,34,18,38,51,66,28,29,43,33,34,31,34,34,24,46,21,43,29,53],
     "2 Kings": [18,25,27,44,27,33,20,29,37,36,21,21,25,29,38,20,41,37,37,21,26,20,37,20,30],
-    "Second Kings": [18,25,27,44,27,33,20,29,37,36,21,21,25,29,38,20,41,37,37,21,26,20,37,20,30],
     "1 Chronicles": [54,55,24,43,26,81,40,40,44,14,47,41,14,17,29,43,27,17,19,8,30,19,32,31,31,32,34,21,30],
-    "First Chronicles": [54,55,24,43,26,81,40,40,44,14,47,41,14,17,29,43,27,17,19,8,30,19,32,31,31,32,34,21,30],
     "2 Chronicles": [17,18,17,22,14,42,22,18,31,19,23,16,23,14,19,14,19,34,11,37,20,12,21,27,28,23,9,27,36,27,21,33,25,33,27,23],
-    "Second Chronicles": [17,18,17,22,14,42,22,18,31,19,23,16,23,14,19,14,19,34,11,37,20,12,21,27,28,23,9,27,36,27,21,33,25,33,27,23],
     "Ezra": [11,70,13,24,17,22,28,36,15,44],
     "Nehemiah": [11,20,32,23,19,19,73,18,38,39,36,47,31],
     "Esther": [22,23,15,17,14,14,10,17,32,3],
@@ -80,35 +74,24 @@ BIBLE_STRUCTURE = {
     "Acts": [26,47,26,37,42,15,60,40,43,48,30,25,52,28,41,40,34,28,41,38,40,30,35,27,27,32,44,31],
     "Romans": [32,29,31,25,21,23,25,39,33,21,36,21,14,23,33,27],
     "1 Corinthians": [31,16,23,21,13,20,40,13,27,33,34,31,13,40,58,24],
-    "First Corinthians": [31,16,23,21,13,20,40,13,27,33,34,31,13,40,58,24],
     "2 Corinthians": [24,17,18,18,21,18,16,24,15,18,33,21,13],
-    "Second Corinthians": [24,17,18,18,21,18,16,24,15,18,33,21,13],
     "Galatians": [24,21,29,31,26,18],
     "Ephesians": [23,22,21,32,33,24],
     "Philippians": [30,30,21,23],
     "Colossians": [29,23,25,18],
     "1 Thessalonians": [10,20,13,18,28],
-    "First Thessalonians": [10,20,13,18,28],
     "2 Thessalonians": [12,17,18],
-    "Second Thessalonians": [12,17,18],
     "1 Timothy": [20,15,16,16,25,21],
-    "First Timothy": [20,15,16,16,25,21],
     "2 Timothy": [18,26,17,22],
-    "Second Timothy": [18,26,17,22],
     "Titus": [16,15,15],
     "Philemon": [25],
     "Hebrews": [14,18,19,16,14,20,28,13,28,39,40,29,25],
     "James": [27,26,18,17,20],
     "1 Peter": [25,25,22,19,14],
-    "First Peter": [25,25,22,19,14],
     "2 Peter": [21,22,18],
-    "Second Peter": [21,22,18],
     "1 John": [10,29,24,21,21],
-    "First John": [10,29,24,21,21],
     "2 John": [13],
-    "Second John": [13],
     "3 John": [14],
-    "Third John": [14],
     "Jude": [25],
     "Revelation": [20,29,22,11,14,17,17,13,21,11,19,17,18,20,8,21,18,24,21,15,21,21],
 }
@@ -119,7 +102,7 @@ BOOKS = [b.lower() for b in BIBLE_STRUCTURE]
 BOOK_PATTERN = r"|".join(sorted([re.escape(b) for b in BOOKS], key=lambda x: -len(x)))
 
 REFERENCE_PATTERN = re.compile(
-    rf"\b(?:(first|second|third|\d(?:st|nd|rd)?)\s+)?"
+    rf"\b(?:(1|2|3|first|second|third\d(?:st|nd|rd)?)\s+)?"
     rf"({BOOK_PATTERN})"
     rf"(?:\s+chapter)?\s+([\w\s\-]+?)"
     rf"(?:\s+verse(?:s)?\s+([\w\s\-]+?))?"
@@ -141,7 +124,7 @@ def word_to_number(word):
 def fuzzy_book_match(candidate):
     """Return the best-matching book from BOOKS (lowercase) or None."""
     match, score = process.extractOne(candidate.lower(), BOOKS)
-    return match if score >= 85 else None
+    return match if score >= 80 else None
 
 
 def extract_bible_reference(text):
@@ -169,9 +152,16 @@ def extract_bible_reference(text):
             book_key = fb
 
         book = book_key.title().replace("Psalms", "Psalm")
+        book = book_key.title().replace("psalms", "Psalm")
         book = book_key.title().replace("Proverb", "Proverbs")
+        book = book_key.title().replace("proverb", "Proverbs")
         book = book_key.title().replace("Songs Of Solomon", "Song Of Solomon")
+        book = book_key.title().replace("songs Of Solomon", "Song Of Solomon")
+        book = book_key.title().replace("songs Of solomon", "Song Of Solomon")
+        book = book_key.title().replace("songs of solomon", "Song Of Solomon")
         book = book_key.title().replace("Revelations", "Revelation")
+        book = book_key.title().replace("revelations", "Revelation")
+        book = book_key.title().replace("revelation", "Revelation")
 
         # 2) chapter & verse conversion
         chap = word_to_number(chap_raw)
