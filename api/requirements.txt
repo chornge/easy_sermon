@@ -10,7 +10,7 @@ tokenizers==0.21.0
 torch==2.2.2
 torchaudio==2.2.2
 torchvision==0.17.2
-transformers==4.51.3
+transformers==4.53.2
 uvicorn==0.29.0
 vosk==0.3.44
 word2number==1.1

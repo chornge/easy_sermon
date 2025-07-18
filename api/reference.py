@@ -204,12 +204,11 @@ if __name__ == "__main__":
         "at genesis chapter two verses eight and nine",
         "as it says in john three verse sixteen",
         "let's take a look at romans five",
-        "ezekiel chapter thirty three verse two",
-        "psalms eighty three verse thirty two",
-        "psalms one forty three verses two through seven",
+        "the book of ezekiel chapter thirty three verse two",
+        "in psalms eighty three verse thirty two",
+        "going back to psalms one forty three verses two through seven",
         "first corinthians thirteen verse four",
-        "third john one verse two",
-        "combining exodus one one leviticus one one and job three one into a module",
+        "again in third john one verse two",
         "open your bibles to revelations twenty two verse three",
     ]
 
