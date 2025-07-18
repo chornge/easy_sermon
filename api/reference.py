@@ -3,19 +3,12 @@ from word2number import w2n
 from fuzzywuzzy import process
 
 ORDINALS = {
-    "First": "1",
     "first": "1",
-    "Second": "2",
     "second": "2",
-    "Third": "3",
     "third": "3",
-    "1st": "I",
-    "2nd": "II",
-    "3rd": "III",
 }
 
 ORDINAL_RULES = {
-    "john": 3,
     "peter": 2,
     "timothy": 2,
     "thessalonians": 2,
@@ -45,7 +38,6 @@ BIBLE_STRUCTURE = {
     "Nehemiah": [11,20,32,23,19,19,73,18,38,39,36,47,31],
     "Esther": [22,23,15,17,14,14,10,17,32,3],
     "Job": [22,13,26,21,27,30,21,22,35,22,20,25,28,22,35,22,16,21,29,29,34,30,17,25,6,14,23,28,25,31,40,22,33,37,16,33,24,41,30,24,34,17],
-    "Psalms": [6,12,8,8,12,10,17,9,20,18,7,8,6,7,5,11,15,50,14,9,13,31,6,10,22,12,14,9,11,12,24,11,22,22,28,12,40,22,13,17,13,11,5,26,17,11,9,14,20,23,19,9,6,7,23,13,11,11,17,12,8,12,11,10,13,20,7,35,36,5,24,20,28,23,10,12,20,72,13,19,16,8,18,12,13,17,7,18,52,17,16,15,5,23,11,13,12,9,9,5,8,29,22,35,45,48,43,13,31,7,10,10,9,8,18,19,2,29,176,7,8,9,4,8,5,6,5,6,8,8,3,18,3,3,21,26,9,8,24,13,10,7,12,15,21,10,20,14,9,6],
     "Psalm": [6,12,8,8,12,10,17,9,20,18,7,8,6,7,5,11,15,50,14,9,13,31,6,10,22,12,14,9,11,12,24,11,22,22,28,12,40,22,13,17,13,11,5,26,17,11,9,14,20,23,19,9,6,7,23,13,11,11,17,12,8,12,11,10,13,20,7,35,36,5,24,20,28,23,10,12,20,72,13,19,16,8,18,12,13,17,7,18,52,17,16,15,5,23,11,13,12,9,9,5,8,29,22,35,45,48,43,13,31,7,10,10,9,8,18,19,2,29,176,7,8,9,4,8,5,6,5,6,8,8,3,18,3,3,21,26,9,8,24,13,10,7,12,15,21,10,20,14,9,6],
     "Proverbs": [33,22,35,27,23,35,27,36,18,32,31,28,25,35,33,33,28,24,29,30,31,29,35,34,28,28,27,28,27,33,31],
     "Ecclesiastes": [18,26,22,16,20,12,29,17,18,20,10,14],
@@ -97,84 +89,98 @@ BIBLE_STRUCTURE = {
 }
 # fmt: on
 
-# derive BOOKS & regex
 BOOKS = [b.lower() for b in BIBLE_STRUCTURE]
-BOOK_PATTERN = r"|".join(sorted([re.escape(b) for b in BOOKS], key=lambda x: -len(x)))
+BOOK_PATTERN = r"|".join(sorted(map(re.escape, BOOKS), key=lambda x: -len(x)))
 
-REFERENCE_PATTERN = re.compile(
-    rf"\b(?:(1|2|3|first|second|third\d(?:st|nd|rd)?)\s+)?"
-    rf"({BOOK_PATTERN})"
-    rf"(?:\s+chapter)?\s+([\w\s\-]+?)"
-    rf"(?:\s+verse(?:s)?\s+([\w\s\-]+?))?"
-    rf"(?:\s*(?:-|–|—|to|through|until|and)\s+([\w\s\-]+))?\b",
-    re.IGNORECASE,
+REF_RE = re.compile(
+    rf"""
+    \b
+    (?:(\d+)\s+)?                                   # optional numeric ordinal (after normalization)
+    ({BOOK_PATTERN})                                # book name
+    \s+(?:chapter\s+)?([\w\s-]+?)                   # chapter (words or digits)
+    (?:\s+verse(?:s)?\s+([\w\s-]+?))?               # optional verse start
+    (?:\s*(?:-|–|—|to|through|and)\s+([\w\s-]+))?   # optional verse end
+    \b
+""",
+    re.IGNORECASE | re.VERBOSE,
 )
 
 
-def word_to_number(word):
-    if not word:
+def normalize_ordinals(text: str) -> str:
+    """Convert 'first'→'1', 'second'→'2', 'third'→'3' everywhere."""
+    for word, digit in ORDINALS.items():
+        text = re.sub(rf"\b{word}\b", digit, text, flags=re.IGNORECASE)
+    return text
+
+
+def word_to_number(tok: str) -> str:
+    if not tok:
         return None
-    word = word.lower().replace("-", " ").strip()
+    tok = tok.lower().replace("-", " ").strip()
     try:
-        return str(w2n.word_to_num(word))
-    except ValueError:
-        return word if word.isdigit() else None
+        return str(w2n.word_to_num(tok))
+    except:
+        return tok if tok.isdigit() else None
 
 
-def fuzzy_book_match(candidate):
-    """Return the best-matching book from BOOKS (lowercase) or None."""
+def fuzzy_book_match(candidate: str) -> str:
+    """Return best fuzzy match from BOOKS, or None."""
     match, score = process.extractOne(candidate.lower(), BOOKS)
     return match if score >= 80 else None
 
 
-def extract_bible_reference(text):
+def extract_bible_reference(text: str):
+    text = (
+        normalize_ordinals(text)
+        .replace("psalms", "psalm")
+        .replace("revelations", "revelation")
+        .replace("songs of solomon", "song of solomon")
+    )
     results = []
-    for (
-        ord_raw,
-        book_raw,
-        chap_raw,
-        verse_start_raw,
-        verse_end_raw,
-    ) in REFERENCE_PATTERN.findall(text):
-        # 1) fuzzy-match book name
+    for ord_raw, book_raw, chap_raw, verse_start_raw, verse_end_raw in REF_RE.findall(
+        text
+    ):
+        # 1) ensure ordinal rules
+        ord_num = int(ord_raw) if ord_raw else None
+
+        # 2) fuzzy-match book
         fb = fuzzy_book_match(book_raw)
         if not fb:
             continue
 
-        if ord_raw:
-            ord_num = ORDINALS.get(ord_raw.lower(), ord_raw)
-            if fb in ORDINAL_RULES and int(ord_num) > ORDINAL_RULES[fb]:
+        # 3) handle ordinals and special cases
+        if fb == "john":
+            if ord_num:
+                book_key = f"{ord_num} john"  # e.g. "1 john"
+            else:
+                book_key = "john"
+        elif fb in ORDINAL_RULES:
+            # ordinal found
+            if not ord_num or ord_num > ORDINAL_RULES[fb]:
                 continue
             book_key = f"{ord_num} {fb}"
         else:
-            if fb in ORDINAL_RULES and fb != "john":
-                continue
+            # no ordinal needed
             book_key = fb
 
-        book = book_key.title().replace("Psalms", "Psalm")
-        book = book_key.title().replace("psalms", "Psalm")
-        book = book_key.title().replace("Proverb", "Proverbs")
-        book = book_key.title().replace("proverb", "Proverbs")
-        book = book_key.title().replace("Songs Of Solomon", "Song Of Solomon")
-        book = book_key.title().replace("songs Of Solomon", "Song Of Solomon")
-        book = book_key.title().replace("songs Of solomon", "Song Of Solomon")
-        book = book_key.title().replace("songs of solomon", "Song Of Solomon")
-        book = book_key.title().replace("Revelations", "Revelation")
-        book = book_key.title().replace("revelations", "Revelation")
-        book = book_key.title().replace("revelation", "Revelation")
+        book = book_key.title()
 
-        # 2) chapter & verse conversion
+        # 4) chapter & verse conversion
         chap = word_to_number(chap_raw)
         start = word_to_number(verse_start_raw) if verse_start_raw else "1"
         end = word_to_number(verse_end_raw) if verse_end_raw else None
 
+        # 5) chapter & verse numbers
+        chap = word_to_number(chap_raw)
+        start = word_to_number(verse_start_raw) or "1"
+        end = word_to_number(verse_end_raw)
+
         if chap is None or start is None:
             continue
 
-        # 3) validate
+        # 6) validate
         if book not in BIBLE_STRUCTURE:
             continue
-
         chap_n = int(chap)
         if chap_n < 1 or chap_n > len(BIBLE_STRUCTURE[book]):
             continue
@@ -182,12 +188,12 @@ def extract_bible_reference(text):
         if start_n < 1 or start_n > BIBLE_STRUCTURE[book][chap_n - 1]:
             continue
 
-        ref = f"{book} {chap}:{start}"
+        ref = f"{book} {chap_n}:{start_n}"
         if end:
             end_n = int(end)
             if end_n < start_n or end_n > BIBLE_STRUCTURE[book][chap_n - 1]:
                 continue
-            ref += f"-{end}"
+            ref += f"-{end_n}"
         results.append(ref)
 
     return results
