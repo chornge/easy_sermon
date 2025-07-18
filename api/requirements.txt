@@ -1,9 +1,9 @@
 wheel==0.42.0
-fastapi==0.115.12
+fastapi==0.116.1
 fuzzywuzzy[speedup]==0.18.0
-huggingface-hub==0.30.2
+huggingface-hub==0.33.4
 numpy==1.26.4
-openai-whisper==20240930
+openai-whisper==20250625
 scipy==1.13.1
 sounddevice==0.5.2
 tokenizers==0.21.0
