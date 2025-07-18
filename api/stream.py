@@ -61,6 +61,13 @@ def start_vosk_stream():
             if not text:
                 continue
 
+            # Skip noise
+            if text in {"the"}:
+                text = text.replace("the", "").strip()
+                continue
+            if text in "":
+                continue
+
             print("🔍 Transcribed text:", text)
             for ref in extract_bible_reference(text):
                 if ref not in detected_verses:
