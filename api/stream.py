@@ -1,6 +1,8 @@
 import os
 import json
 import queue
+
+# import asyncio
 from pathlib import Path
 import sounddevice as sd
 
@@ -10,6 +12,7 @@ from fastapi.templating import Jinja2Templates
 from vosk import Model, KaldiRecognizer
 
 from api.reference import extract_bible_reference
+from api.propresent import send_text_to_propresenter
 
 # Global settings
 SAMPLE_RATE = 16000
@@ -39,7 +42,7 @@ def start_vosk_stream():
 
     with sd.RawInputStream(
         samplerate=SAMPLE_RATE,
-        blocksize=4000, # smaller block size for lower latency (~0.25s) instead of 8000
+        blocksize=4000,  # smaller block size for lower latency (~0.25s) instead of 8000
         dtype="int16",
         channels=1,
         callback=callback,
@@ -54,7 +57,7 @@ def start_vosk_stream():
 
             output = json.loads(j)
             text = output.get("partial") or output.get("text", "")
-            text = text.strip()
+            text = text.strip().lower()
             if not text:
                 continue
 
@@ -63,6 +66,7 @@ def start_vosk_stream():
                 if ref not in detected_verses:
                     detected_verses.append(ref)
                     print("✅ Got:", ref)
+                    # asyncio.run(send_text_to_propresenter(ref))
 
 
 @app.get("/transcript")
