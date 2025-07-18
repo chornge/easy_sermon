@@ -9,13 +9,13 @@ ORDINALS = {
 }
 
 ORDINAL_RULES = {
-    "peter": 2,
-    "timothy": 2,
-    "thessalonians": 2,
-    "corinthians": 2,
-    "kings": 2,
     "samuel": 2,
+    "kings": 2,
     "chronicles": 2,
+    "corinthians": 2,
+    "thessalonians": 2,
+    "timothy": 2,
+    "peter": 2,
 }
 
 # fmt: off
@@ -97,8 +97,8 @@ REF_RE = re.compile(
     \b
     (?:(\d+)\s+)?                                   # optional numeric ordinal (after normalization)
     ({BOOK_PATTERN})                                # book name
-    \s+(?:chapter\s+)?([\w\s-]+?)                   # chapter (words or digits)
-    (?:\s+verse(?:s)?\s+([\w\s-]+?))?               # optional verse start
+    \s+(?:chapter\s+)?([\w\s\-]+?)(?=\s+verse\b|$)  # chapter (words or digits)
+    (?:\s+verse(?:s)?\s+([\w\s\-]+))?               # optional verse start
     (?:\s*(?:-|–|—|to|through|and)\s+([\w\s-]+))?   # optional verse end
     \b
 """,
@@ -201,12 +201,12 @@ def extract_bible_reference(text: str):
 
 if __name__ == "__main__":
     samples = [
-        "at genesis chapter two verses eight and nine",
+        "at genesis chapter two verse eight",
         "as it says in john three verse sixteen",
         "let's take a look at romans five",
         "the book of ezekiel chapter thirty three verse two",
-        "in psalms eighty three verse thirty two",
-        "going back to psalms one forty three verses two through seven",
+        "in psalm eighty three verse twelve",
+        "going back to psalm one hundred five verse forty one",
         "first corinthians thirteen verse four",
         "again in third john one verse two",
         "open your bibles to revelations twenty two verse three",

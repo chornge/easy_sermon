@@ -3,13 +3,9 @@ fastapi==0.116.1
 fuzzywuzzy[speedup]==0.18.0
 huggingface-hub==0.33.4
 numpy==1.26.4
-openai-whisper==20250625
 scipy==1.13.1
 sounddevice==0.5.2
 tokenizers==0.21.0
-torch==2.2.2
-torchaudio==2.2.2
-torchvision==0.17.2
 transformers==4.53.2
 uvicorn==0.29.0
 vosk==0.3.44
