@@ -22,7 +22,7 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 
 ```
 git clone https://github.com/chornge/easy_sermon.git
-cd ~/PATH/to/easysermon
+cd ~/PATH/to/easy_sermon
 python3 -m venv venv
 source venv/bin/activate
 pip install -r api/requirements.txt
