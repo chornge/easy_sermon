@@ -17,7 +17,6 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 - Audio input device (microphone, etc)
 - FFMPEG (`brew install ffmpeg` on macOS)
 - [Vosk](https://github.com/alphacep/vosk-api) (`small`, `medium`, `large`, etc) - downloaded as part of build script.
-- [Whisper](https://github.com/openai/whisper) (`tiny.en`, `base.en`, `small.en`, etc) - not needed unless testing with audio files/chunking audio streams.
 
 ## Usage
 
@@ -49,9 +48,9 @@ Navigate to `http://localhost` on the browser. Allow microphone access (if the p
 "inside third john one verse two" -> [3 John 1:2]
 "let's take a look at romans five" -> [Romans 5:1]
 "as it says in john three verse sixteen" -> [John 3:16]
-"at genesis chapter two verses eight and nine" -> [Genesis 2:8-9]
-"first corinthians thirteen verse four" -> [First Corinthians 13:4]
-"combining exodus one one leviticus one one and job three one into a module" -> [Exodus 1:1, Leviticus 1:1, Job 3:1]
+"at genesis chapter two verse eight" -> [Genesis 2:8]
+"first corinthians thirteen verse four" -> [1 Corinthians 13:4]
+"viewing psalm one hundred and five verse forty one" -> [Psalm 105:41]
 ```
 
 Sometimes you may want to see the list of all connected audio devices. To show all input and output devices, run:
@@ -60,16 +59,9 @@ Sometimes you may want to see the list of all connected audio devices. To show a
 python3 api/devices.py
 ```
 
-To manually download and test a Vosk model (streaming), run:
+To manually download and test a Vosk model (vosk-model, vosk-model-small, etc), run:
 
 ```
 python3 api/download_vosk.py
 python3 api/reference.py
-```
-
-To manually download and test a Whisper model (chunking), run:
-
-```
-python3 api/download_whisper.py
-python3 api/chunk.py
 ```
