@@ -140,7 +140,7 @@ def extract_bible_reference(text: str):
     for ord_raw, book_raw, chap_raw, verse_start_raw, verse_end_raw in REF_RE.findall(
         text
     ):
-        # 1) ensure ordinal rules
+        # 1) check ordinal rules
         ord_num = int(ord_raw) if ord_raw else None
 
         # 2) fuzzy-match book
@@ -167,18 +167,13 @@ def extract_bible_reference(text: str):
 
         # 4) chapter & verse conversion
         chap = word_to_number(chap_raw)
-        start = word_to_number(verse_start_raw) if verse_start_raw else "1"
-        end = word_to_number(verse_end_raw) if verse_end_raw else None
-
-        # 5) chapter & verse numbers
-        chap = word_to_number(chap_raw)
         start = word_to_number(verse_start_raw) or "1"
         end = word_to_number(verse_end_raw)
 
         if chap is None or start is None:
             continue
 
-        # 6) validate
+        # 5) validate
         if book not in BIBLE_STRUCTURE:
             continue
         chap_n = int(chap)
