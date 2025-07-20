@@ -11,6 +11,8 @@ fn main() {
         .arg("--port")
         .arg("80")
         .arg("--reload")
+        .arg("--log-level")
+        .arg("warning")
         .status()
         .expect("failed to run api/stream.py");
 
