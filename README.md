@@ -36,6 +36,12 @@ chmod +x get-certificates.sh
 bash get-certificates.sh
 ```
 
+Download model (if not already present - model url can be modified in the file)
+
+```
+python3 api/download_vosk.py
+```
+
 Run:
 
 ```

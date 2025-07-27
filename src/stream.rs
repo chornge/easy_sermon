@@ -12,7 +12,6 @@ use vosk::{KaldiRecognizer, Model};
 
 /* External crates needed in Cargo.toml:
 actix-web = "4"
-cpal = "0.16"
 crossbeam-channel = "0.5"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -21,7 +20,7 @@ vosk = "0.3"
 
 const SAMPLE_RATE: f32 = 16_000.0;
 const BLOCK_SIZE: usize = 4000;
-const MODEL_PATH: &str = "models/vosk-model-en-us-0.22";
+const MODEL_PATH: &str = "models/vosk-model-en-us-0.42-gigaspeech";
 
 #[derive(Clone)]
 struct AppState {

@@ -1,4 +1,5 @@
 use std::{
+    error::Error,
     fs::{self, File},
     io::Cursor,
     path::Path,
@@ -20,9 +21,13 @@ const MODEL_PATH: &str = "vosk-model-en-us-0.42-gigaspeech";
 fn main() {
     println!("cargo:rerun-if-changed=src/build.rs");
 
+    if std::env::var("CI").is_ok() {
+        println!("CI/CD pipeline detected, skipping model download.");
+        return;
+    }
+
     let model_folder = Path::new(MODEL_DIR).join(MODEL_PATH.trim_start_matches('/'));
     if model_folder.exists() {
-        println!("Model folder already exists. Skipping model download.");
         return;
     }
 
@@ -43,13 +48,13 @@ fn main() {
     println!("Model download and extraction complete.");
 }
 
-fn download_zip(url: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+fn download_zip(url: &str) -> Result<Vec<u8>, Box<dyn Error>> {
     let response = reqwest::blocking::get(url)?;
     let bytes = response.bytes()?.to_vec();
     Ok(bytes)
 }
 
-fn extract_zip(bytes: Vec<u8>, output_dir: &str) -> Result<(), Box<dyn std::error::Error>> {
+fn extract_zip(bytes: Vec<u8>, output_dir: &str) -> Result<(), Box<dyn Error>> {
     let reader = Cursor::new(bytes);
     let mut zip = ZipArchive::new(reader)?;
 
