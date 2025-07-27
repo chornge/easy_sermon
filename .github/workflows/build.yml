@@ -42,8 +42,8 @@ jobs:
           pip install --upgrade setuptools wheel
           if [ -f api/requirements.txt ]; then pip install -r api/requirements.txt; fi
 
-      - name: Check
-        run: cargo check --release
+      - name: Build
+        run: cargo build --release
 
       - name: Lint
         run: cargo clippy --release -- -D warnings

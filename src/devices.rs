@@ -5,7 +5,7 @@ pub fn list_input_outputs() {
     let devices = match host.devices() {
         Ok(d) => d,
         Err(e) => {
-            eprintln!("Error getting devices: {}", e);
+            eprintln!("Error getting devices: {e}");
             return;
         }
     };
