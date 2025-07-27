@@ -14,7 +14,7 @@ pub fn list_input_outputs() {
         let name = device.name().unwrap_or_else(|_| "Unknown".to_string());
 
         let supported_configs = device.supported_input_configs();
-        let is_input = supported_configs.map_or(false, |mut sc| sc.next().is_some());
+        let is_input = supported_configs.is_ok_and(|mut sc| sc.next().is_some());
 
         println!(
             "{}: {} ({})",

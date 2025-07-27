@@ -31,18 +31,18 @@ fn main() {
         return;
     }
 
-    let model_url = format!("https://alphacephei.com/vosk/models/{}.zip", MODEL_PATH);
-    println!("Downloading model from: {}", model_url);
+    let model_url = format!("https://alphacephei.com/vosk/models/{MODEL_PATH}.zip");
+    println!("Downloading model from: {model_url}");
 
     let bytes = match download_zip(&model_url) {
         Ok(b) => b,
         Err(e) => {
-            panic!("Failed to download model: {}", e);
+            panic!("Failed to download model: {e}");
         }
     };
 
     if let Err(e) = extract_zip(bytes, MODEL_DIR) {
-        panic!("Failed to extract model: {}", e);
+        panic!("Failed to extract model: {e}");
     }
 
     println!("Model download and extraction complete.");
