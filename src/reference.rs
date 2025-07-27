@@ -2,12 +2,12 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use std::collections::HashMap;
 
-// External crates needed in Cargo.toml:
-// fuzzy-matcher = "0.3"
-// once_cell = "1.18"
-// regex = "1.8"
-// word-to-num = "0.1"
-
+/* External crates needed in Cargo.toml:
+fuzzy-matcher = "0.3"
+once_cell = "1.18"
+regex = "1.8"
+word-to-num = "0.1"
+*/
 static ORDINALS: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert("first", "1");

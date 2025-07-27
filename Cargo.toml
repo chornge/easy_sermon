@@ -1,6 +1,6 @@
 [package]
 name = "easy_sermon"
-version = "1.2.6"
+version = "1.2.7"
 edition = "2021"
 authors = [
     "Christian Mbaba <mxlightningx@gmail.com>",
@@ -9,11 +9,17 @@ authors = [
 ]
 
 [dependencies]
+cpal = "0.16.0"
 hashbrown = "0.15.4"
 idna = "1.0.3"
 openssl = "0.10.73"
 reqwest = { version = "0.12.22", features = ["json"] }
 serde = "1.0.219"
 serde_json = "1.0.140"
+tempfile = "3.10"
 tokio = "1.46.1"
 url = "2.5.4"
+
+[build-dependencies]
+reqwest = { version = "0.12.22", features = ["blocking"] }
+zip = "0.6"

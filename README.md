@@ -52,16 +52,3 @@ Navigate to `http://localhost` on the browser. Allow microphone access (if the p
 "first corinthians thirteen verse four" -> [1 Corinthians 13:4]
 "viewing psalm one hundred and five verse forty one" -> [Psalm 105:41]
 ```
-
-Sometimes you may want to see the list of all connected audio devices. To show all input and output devices, run:
-
-```
-python3 api/devices.py
-```
-
-To manually download and test a Vosk model (vosk-model, vosk-model-small, etc), run:
-
-```
-python3 api/download_vosk.py
-python3 api/reference.py
-```

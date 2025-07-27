@@ -16,7 +16,7 @@ from api.propresent import send_text_to_propresenter
 
 # Global settings
 SAMPLE_RATE = 16000
-MODEL_PATH = "models/vosk-model-en-us-0.22"
+MODEL_PATH = "models/vosk-model-en-us-0.42-gigaspeech"
 BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
