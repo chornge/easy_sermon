@@ -9,6 +9,7 @@ authors = [
 ]
 
 [dependencies]
+cpal = "0.16.0"
 hashbrown = "0.15.4"
 idna = "1.0.3"
 openssl = "0.10.73"

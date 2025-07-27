@@ -1,7 +1,4 @@
 mod devices;
-mod download_vosk;
-mod reference;
-mod stream;
 
 use reqwest::Client;
 use serde_json::json;
@@ -9,6 +6,9 @@ use std::{error::Error, process::Command};
 use tokio::{io::AsyncReadExt, io::AsyncWriteExt, net::TcpStream};
 
 fn main() {
+    use devices::list_input_outputs;
+    list_input_outputs();
+
     let stream = Command::new("uvicorn")
         .arg("api.main:app")
         .arg("--host")

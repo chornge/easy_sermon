@@ -1,6 +1,6 @@
 use cpal::traits::{DeviceTrait, HostTrait};
 
-fn main() {
+pub fn list_input_outputs() {
     let host = cpal::default_host();
     let devices = match host.devices() {
         Ok(d) => d,
