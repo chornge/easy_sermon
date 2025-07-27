@@ -1,3 +1,8 @@
+mod devices;
+mod download_vosk;
+mod reference;
+mod stream;
+
 use reqwest::Client;
 use serde_json::json;
 use std::{error::Error, process::Command};
