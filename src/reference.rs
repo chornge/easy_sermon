@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 /* External crates needed in Cargo.toml:
 fuzzy-matcher = "0.3"
-once_cell = "1.18"
+once_cell = "1.21.3"
 regex = "1.8"
 word-to-num = "0.1"
 */
@@ -65,7 +65,7 @@ static BIBLE_STRUCTURE: Lazy<HashMap<&'static str, Vec<usize>>> = Lazy::new(|| {
     map.insert("Hosea", vec![11,23,5,19,15,11,16,14,17,15,12,15,11,17]);
     map.insert("Joel", vec![20,32,21]);
     map.insert("Amos", vec![15,16,15,13,27,14,17,14,15]);
-    map.insert("Obadiah", vec![15,16,15,13,27,14,17,14,15]);
+    map.insert("Obadiah", vec![21]);
     map.insert("Jonah", vec![17,10,10,11]);
     map.insert("Micah", vec![16,13,12,13,15,16,20]);
     map.insert("Nahum", vec![15,13,19]);

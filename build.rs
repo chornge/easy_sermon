@@ -1,9 +1,10 @@
 use futures_util::StreamExt;
+use once_cell::sync::Lazy;
 use reqwest::Client;
 use std::{
     error::Error,
     fs::{self, File},
-    io::Cursor,
+    io::{copy, Cursor},
     path::Path,
 };
 use zip::ZipArchive;
@@ -18,22 +19,27 @@ use zip::ZipArchive;
 // Optional: Replace with a different model
 const MODEL_DIR: &str = "models";
 const MODEL_PATH: &str = "vosk-model-en-us-0.42-gigaspeech";
+static MODEL_FULL_PATH: Lazy<String> = Lazy::new(|| format!("{MODEL_DIR}/{MODEL_PATH}"));
 
 #[tokio::main]
 async fn main() {
     println!("cargo:rerun-if-changed=src/build.rs");
+    println!("cargo:rustc-env=MODEL_PATH={}", MODEL_FULL_PATH.as_str());
 
     if std::env::var("CI").is_ok() {
         println!("CI/CD pipeline detected, skipping model download.");
         return;
     }
 
-    let model_folder = Path::new(MODEL_DIR).join(MODEL_PATH.trim_start_matches('/'));
-    if model_folder.exists() {
+    if Path::new(MODEL_FULL_PATH.as_str()).exists() {
+        println!("Model already exists at {}", MODEL_FULL_PATH.as_str());
         return;
     }
 
-    let model_url = format!("https://alphacephei.com/vosk/models/{MODEL_PATH}.zip");
+    let model_url = format!(
+        "https://alphacephei.com/vosk/{}.zip",
+        MODEL_FULL_PATH.as_str()
+    );
     println!("Downloading model from: {model_url}");
 
     let bytes = match download_zip(&model_url).await {
@@ -52,9 +58,7 @@ async fn main() {
 
 async fn download_zip(url: &str) -> Result<Vec<u8>, Box<dyn Error>> {
     let client = Client::new();
-
     let response = client.get(url).send().await?.error_for_status()?;
-
     let mut data = Vec::new();
     let mut stream = response.bytes_stream();
 
@@ -83,7 +87,7 @@ fn extract_zip(bytes: Vec<u8>, output_dir: &str) -> Result<(), Box<dyn Error>> {
                 fs::create_dir_all(parent)?;
             }
             let mut outfile = File::create(&outpath)?;
-            std::io::copy(&mut file, &mut outfile)?;
+            copy(&mut file, &mut outfile)?;
         }
     }
 

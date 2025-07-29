@@ -2,7 +2,6 @@ use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use crossbeam_channel::{unbounded, Receiver};
 use reference::extract_bible_reference;
-use serde::Serialize;
 use std::{
     path::PathBuf,
     sync::{Arc, Mutex},
@@ -20,17 +19,11 @@ vosk = "0.3"
 
 const SAMPLE_RATE: f32 = 16_000.0;
 const BLOCK_SIZE: usize = 4000;
-const MODEL_PATH: &str = "models/vosk-model-en-us-0.42-gigaspeech";
+const MODEL_FULL_PATH: &str = env!("MODEL_FULL_PATH");
 
 #[derive(Clone)]
 struct AppState {
     detected: Arc<Mutex<Vec<String>>>,
-}
-
-#[get("/transcript")]
-async fn get_transcript(state: web::Data<AppState>) -> impl Responder {
-    let verses = state.detected.lock().unwrap().clone();
-    HttpResponse::Ok().json(Transcript { transcript: verses })
 }
 
 #[get("/")]
@@ -50,10 +43,10 @@ async fn home(state: web::Data<AppState>) -> impl Responder {
 /// Thread to receive audio buffers and run Vosk recognition + Extraction
 fn start_vosk_stream(rx: Receiver<Vec<i16>>, detected: Arc<Mutex<Vec<String>>>) {
     // Initialize Vosk
-    if !PathBuf::from(MODEL_PATH).exists() {
-        panic!("Model not found at {}", MODEL_PATH);
+    if !PathBuf::from(MODEL_FULL_PATH).exists() {
+        panic!("Model not found at {MODEL_FULL_PATH}");
     }
-    let model = Model::new(MODEL_PATH).expect("Failed to load Vosk model");
+    let model = Model::new(MODEL_FULL_PATH).expect("Failed to load Vosk model");
     let mut recognizer = KaldiRecognizer::new(&model, SAMPLE_RATE).unwrap();
 
     loop {
@@ -167,7 +160,6 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(state.clone()))
-            .service(get_transcript)
             .service(home)
     })
     .bind(("0.0.0.0", 80))?
