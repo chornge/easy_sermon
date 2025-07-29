@@ -34,6 +34,7 @@ static ORDINAL_RULES: Lazy<HashMap<&'static str, usize>> = Lazy::new(|| {
 #[rustfmt::skip]
 static BIBLE_STRUCTURE: Lazy<HashMap<&'static str, Vec<usize>>> = Lazy::new(|| {
     let mut map = HashMap::new();
+    // Old Testament
     map.insert("Genesis", vec![31,25,24,26,32,22,24,22,29,32,32,20,18,24,21,16,27,33,38,18,34,24,20,67,34,35,46,22,35,43,55,32,20,31,29,43,36,30,23,23,57,38,34,34,28,34,31,22,33,26]);
     map.insert("Exodus", vec![22,25,22,31,23,30,29,28,35,29,10,51,22,31,27,36,16,27,25,26,37,30,33,18,40,37,21,43,46,38,18,35,23,35,35,38,29,31,43,38]);
     map.insert("Leviticus", vec![17,16,17,35,26,23,38,36,24,20,47,8,59,57,33,34,16,30,33,24,23,55,46,34,34,28,34]);
@@ -61,7 +62,18 @@ static BIBLE_STRUCTURE: Lazy<HashMap<&'static str, Vec<usize>>> = Lazy::new(|| {
     map.insert("Lamentations", vec![22,22,66,22,22]);
     map.insert("Ezekiel", vec![28,10,27,17,17,14,27,18,11,22,25,28,23,23,9,27,17,22,26,20,27,31,25,24,23,35,40,23,35,27,23,34,16,33,24,23,38,23,29,49,26,20,27,31,25,24,23,35,40,23,35,27,23,34,16,33,24,23,38,23,29]);
     map.insert("Daniel", vec![21,49,30,37,31,28,28,27,27,21,45,13]);
-    // add remaining books
+    map.insert("Hosea", vec![11,23,5,19,15,11,16,14,17,15,12,15,11,17]);
+    map.insert("Joel", vec![20,32,21]);
+    map.insert("Amos", vec![15,16,15,13,27,14,17,14,15]);
+    map.insert("Obadiah", vec![15,16,15,13,27,14,17,14,15]);
+    map.insert("Jonah", vec![17,10,10,11]);
+    map.insert("Micah", vec![16,13,12,13,15,16,20]);
+    map.insert("Nahum", vec![15,13,19]);
+    map.insert("Habakkuk", vec![17,20,19]);
+    map.insert("Zephaniah", vec![18,15,20]);
+    map.insert("Haggai", vec![15,23]);
+    map.insert("Zechariah", vec![17,17,10,14,9,11,16,6,14,10,8,12,14,18]);
+    map.insert("Malachi", vec![14,17,18,6]);
     map.insert("Revelation", vec![20,29,22,11,14,17,17,13,21,11,19,17,18,20,8,21,18,24,21,15,21,21]);
 
     map
