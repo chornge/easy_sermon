@@ -80,6 +80,19 @@ static BIBLE_STRUCTURE: Lazy<HashMap<&'static str, Vec<usize>>> = Lazy::new(|| {
     map.insert("Luke", vec![80,52,38,44,39,49,50,56,62,42,54,59,35,35,32,31,37,43,48,47,38,71,56,53,59,37]);
     map.insert("John", vec![51,25,36,54,47,71,53,59,41,42,57,50,38,31,27,33,26,40,42,31,25]);
     map.insert("Acts", vec![26,47,26,37,42,15,60,40,43,48,30,25,52,28,41,40,34,28,41,38,40,30,35,27,27,32,44,31]);
+    map.insert("Romans", vec![32,29,31,25,21,23,25,39,33,21,36,21,14,23,33,27]);
+    map.insert("1 Corinthians", vec![31,16,23,21,13,20,40,13,27,33,34,31,13,40,58,24]);
+    map.insert("2 Corinthians", vec![24,17,18,18,21,18,16,24,15,18,33,21,13]);
+    map.insert("Galatians", vec![24,21,29,31,26,18]);
+    map.insert("Ephesians", vec![23,22,21,32,33,24]);
+    map.insert("Philippians", vec![30,30,21,23]);
+    map.insert("Colossians", vec![29,23,25,18]);
+    map.insert("1 Thessalonians", vec![10,20,13,18,28]);
+    map.insert("2 Thessalonians", vec![12,17,18]);
+    map.insert("1 Timothy", vec![20,15,16,16,25,21]);
+    map.insert("2 Timothy", vec![18,26,17,22]);
+    map.insert("Titus", vec![16,15,15]);
+    map.insert("Philemon", vec![25]);
 
     map
 });
