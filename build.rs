@@ -1,10 +1,11 @@
+use futures_util::StreamExt;
+use reqwest::Client;
 use std::{
     error::Error,
     fs::{self, File},
     io::Cursor,
     path::Path,
 };
-
 use zip::ZipArchive;
 
 /* Models (ranked by accuracy):
@@ -18,7 +19,8 @@ use zip::ZipArchive;
 const MODEL_DIR: &str = "models";
 const MODEL_PATH: &str = "vosk-model-en-us-0.42-gigaspeech";
 
-fn main() {
+#[tokio::main]
+async fn main() {
     println!("cargo:rerun-if-changed=src/build.rs");
 
     if std::env::var("CI").is_ok() {
@@ -34,7 +36,7 @@ fn main() {
     let model_url = format!("https://alphacephei.com/vosk/models/{MODEL_PATH}.zip");
     println!("Downloading model from: {model_url}");
 
-    let bytes = match download_zip(&model_url) {
+    let bytes = match download_zip(&model_url).await {
         Ok(b) => b,
         Err(e) => {
             panic!("Failed to download model: {e}");
@@ -48,10 +50,19 @@ fn main() {
     println!("Model download and extraction complete.");
 }
 
-fn download_zip(url: &str) -> Result<Vec<u8>, Box<dyn Error>> {
-    let response = reqwest::blocking::get(url)?;
-    let bytes = response.bytes()?.to_vec();
-    Ok(bytes)
+async fn download_zip(url: &str) -> Result<Vec<u8>, Box<dyn Error>> {
+    let client = Client::new();
+
+    let response = client.get(url).send().await?.error_for_status()?;
+
+    let mut data = Vec::new();
+    let mut stream = response.bytes_stream();
+
+    while let Some(chunk) = stream.next().await {
+        data.extend_from_slice(&chunk?);
+    }
+
+    Ok(data)
 }
 
 fn extract_zip(bytes: Vec<u8>, output_dir: &str) -> Result<(), Box<dyn Error>> {
