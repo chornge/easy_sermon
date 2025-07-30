@@ -3,9 +3,9 @@ use regex::Regex;
 use std::collections::HashMap;
 
 /* External crates needed in Cargo.toml:
-fuzzy-matcher = "0.3"
+fuzzy-matcher = "0.3.7"
 once_cell = "1.21.3"
-regex = "1.8"
+regex = "1.11.1"
 word-to-num = "0.1"
 */
 static ORDINALS: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
@@ -124,9 +124,10 @@ static REF_RE: Lazy<Regex> = Lazy::new(|| {
         \b
         (?:(\d+)\s+)?
         ({books})
-        \s+(?:chapter\s+)?([\w\s\-]+?)(?=\s+verse\b|$)
-        (?:\s+verse(?:s)?\s+([\w\s\-]+))?
-        (?:\s*(?:[-–—]|to|through|and)\s+([\w\s\-]+))?
+        \s+(?:chapter\s+)?([\w\s\-]+?)
+        \s+verses?\s+
+          ([\w\s\-]+?)    
+          (?:\s*(?:-|–|—|to|through|and)\s+([\w\s\-]+?))?
         \b
     "
     );
