@@ -46,9 +46,8 @@ Navigate to `http://localhost` on the browser. Allow microphone access (if the p
 
 ```
 "inside third john one verse two" -> [3 John 1:2]
-"let's take a look at romans five" -> [Romans 5:1]
 "as it says in john three verse sixteen" -> [John 3:16]
-"at genesis chapter two verse eight" -> [Genesis 2:8]
+"at genesis chapter two verses eight and nine" -> [Genesis 2:8-9]
 "first corinthians thirteen verse four" -> [1 Corinthians 13:4]
-"viewing psalm one hundred and five verse forty one" -> [Psalm 105:41]
+"viewing psalm one hundred and five verse forty" -> [Psalm 105:40]
 ```

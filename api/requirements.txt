@@ -6,6 +6,7 @@ numpy==1.26.4
 scipy==1.13.1
 sounddevice==0.5.2
 tokenizers==0.21.0
+torch==2.2.2
 transformers==4.53.2
 uvicorn==0.29.0
 vosk==0.3.44

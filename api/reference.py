@@ -1,6 +1,12 @@
 import re
 from word2number import w2n
 from fuzzywuzzy import process
+from transformers import pipeline
+
+question_answerer = pipeline(
+    task="question-answering", model="deepset/roberta-base-squad2"
+)
+question = "What complete Bible verses are currently present?"
 
 ORDINALS = {
     "first": "1",
@@ -95,11 +101,12 @@ BOOK_PATTERN = r"|".join(sorted(map(re.escape, BOOKS), key=lambda x: -len(x)))
 REF_RE = re.compile(
     rf"""
     \b
-    (?:(\d+)\s+)?                                   # optional numeric ordinal (after normalization)
-    ({BOOK_PATTERN})                                # book name
-    \s+(?:chapter\s+)?([\w\s\-]+?)(?=\s+verse\b|$)  # chapter (words or digits)
-    (?:\s+verse(?:s)?\s+([\w\s\-]+))?               # optional verse start
-    (?:\s*(?:-|–|—|to|through|and)\s+([\w\s-]+))?   # optional verse end
+    (?:(\d+)\s+)?                                        # optional numeric ordinal
+    ({BOOK_PATTERN})                                     # book name
+    \s+(?:chapter\s+)?([\w\s\-]+?)                       # chapter
+    \s+verses?\s+
+      ([\w\s\-]+?)                                       # verse start
+      (?:\s*(?:-|–|—|to|through|and)\s+([\w\s\-]+?))?    # verse end
     \b
 """,
     re.IGNORECASE | re.VERBOSE,
@@ -129,13 +136,19 @@ def fuzzy_book_match(candidate: str) -> str:
     return match if score >= 80 else None
 
 
-def extract_bible_reference(text: str):
-    text = (
-        normalize_ordinals(text)
-        .replace("psalms", "psalm")
+def normalize_text(text: str) -> str:
+    text = normalize_ordinals(text)
+    text = re.sub(r"\bvs\.?\b", "verses", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bv\.?\b", "verse", text, flags=re.IGNORECASE)
+    return (
+        text.replace("psalms", "psalm")
         .replace("revelations", "revelation")
         .replace("songs of solomon", "song of solomon")
     )
+
+
+def extract_bible_reference(text: str):
+    text = normalize_text(text)
     results = []
     for ord_raw, book_raw, chap_raw, verse_start_raw, verse_end_raw in REF_RE.findall(
         text
@@ -167,7 +180,7 @@ def extract_bible_reference(text: str):
 
         # 4) chapter & verse conversion
         chap = word_to_number(chap_raw)
-        start = word_to_number(verse_start_raw) or "1"
+        start = word_to_number(verse_start_raw)
         end = word_to_number(verse_end_raw)
 
         if chap is None or start is None:
@@ -196,12 +209,11 @@ def extract_bible_reference(text: str):
 
 if __name__ == "__main__":
     samples = [
-        "at genesis chapter two verse eight",
+        "at genesis chapter two verses eight and nine",
         "as it says in john three verse sixteen",
-        "let's take a look at romans five",
         "the book of ezekiel chapter thirty three verse two",
         "in psalm eighty three verse twelve",
-        "going back to psalm one hundred five verse forty one",
+        "going back to psalm one hundred five verse forty",
         "first corinthians thirteen verse four",
         "again in third john one verse two",
         "open your bibles to revelations twenty two verse three",

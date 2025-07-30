@@ -11,9 +11,37 @@
       .verse {
         margin: 10px;
         padding: 10px;
-        border: 1px solid #ccc;
+        border: 4px solid #ccc;
         display: inline-block;
         cursor: pointer;
+      }
+
+      /* new verses: red blink */
+      @keyframes blink-red {
+        0%,
+        100% {
+          border-color: red;
+        }
+        50% {
+          border-color: transparent;
+        }
+      }
+      .new {
+        animation: blink-red 0.4s ease-in-out;
+      }
+
+      /* moved‐later verses: green blink */
+      @keyframes blink-green {
+        0%,
+        100% {
+          border-color: green;
+        }
+        50% {
+          border-color: transparent;
+        }
+      }
+      .moved {
+        animation: blink-green 0.4s ease-in-out;
       }
     </style>
   </head>
@@ -35,8 +63,41 @@
           .catch((err) => alert("Copy failed: " + err));
       }
 
-      // Optional: Auto-refresh every second
-      setInterval(() => window.location.reload(), 1000);
+      (function () {
+        const seenKey = "seenVerses";
+        const orderKey = "verseOrder";
+
+        // current verses in DOM order
+        const elems = Array.from(document.querySelectorAll("#verses .verse"));
+        const current = elems.map((e) => e.textContent.trim());
+
+        // previous data
+        const seen = JSON.parse(localStorage.getItem(seenKey) || "[]");
+        const oldOrder = JSON.parse(localStorage.getItem(orderKey) || "[]");
+
+        elems.forEach((el, i) => {
+          const v = el.textContent.trim();
+
+          if (!seen.includes(v)) {
+            // brand new verse
+            el.classList.add("new");
+          } else {
+            // already seen verse
+            const oldIndex = oldOrder.indexOf(v);
+            if (oldIndex !== -1 && i > oldIndex) {
+              el.classList.add("moved");
+            }
+          }
+        });
+
+        // persist updated seen & order
+        const updatedSeen = Array.from(new Set(seen.concat(current)));
+        localStorage.setItem(seenKey, JSON.stringify(updatedSeen));
+        localStorage.setItem(orderKey, JSON.stringify(current));
+      })();
+
+      // auto-refresh every second
+      setInterval(() => window.location.reload(), 1200);
     </script>
   </body>
 </html>
