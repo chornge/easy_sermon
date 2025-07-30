@@ -6,11 +6,19 @@ from contextlib import asynccontextmanager
 import os
 from pathlib import Path
 import threading
+import torch
 
 from api.stream import start_vosk_stream, detected_verses
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+
+if torch.backends.mps.is_available():
+    mps_device = torch.device("mps")
+    x = torch.ones(1, device=mps_device)
+    print(x)
+else:
+    print("MPS device not found.")
 
 
 @asynccontextmanager
