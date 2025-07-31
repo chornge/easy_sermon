@@ -1,7 +1,7 @@
 import aiohttp
 import asyncio
 
-PRO7_PORT = 49279
+PRO7_PORT = 54346
 PRO7_HOST = "localhost"
 PASSWORD = ""
 
@@ -11,12 +11,15 @@ async def propresenter(text):
 
     # Prepare the message payload
     payload = {
-        "Found": text,
+        "url":"http://localhost:54346/v1/stage/message",
+        "method":"PUT",
+        "body":text,
+        "chunked":"false",
     }
 
     # Send payload to ProPresenter
     async with aiohttp.ClientSession() as session:
-        async with session.put(uri, json=payload) as response:
+        async with session.put(uri, json={"url":"http://localhost:54346/v1/stage/message","method":"PUT","body":"This is the new stage message"}) as response:
             if response.status == 200:
                 print(f"✅ Sent to ProPresenter: {text}")
             else:
