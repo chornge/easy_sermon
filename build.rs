@@ -4,19 +4,18 @@ use reqwest::Client;
 use std::{
     error::Error,
     fs::{self, File},
-    io::{copy, Cursor},
+    io::{copy, Cursor, Write},
     path::Path,
 };
 use zip::ZipArchive;
 
-/* Models (ranked by accuracy):
+/* Models (ranked by accuracy) - Replace with a different model if needed
 "https://alphacephei.com/vosk/models/vosk-model-en-us-0.42-gigaspeech.zip"  # 4.1 GB | 94.36% accurate
 "https://alphacephei.com/vosk/models/vosk-model-en-us-0.22.zip"             # 2.9 GB | 94.31% accurate
 "https://alphacephei.com/vosk/models/vosk-model-en-us-0.22-lgraph.zip"      # 215 MB | 92.18% accurate
 "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip"       # 71 MB  | 90.15% accurate
 */
 
-// Optional: Replace with a different model
 const MODEL_DIR: &str = "models";
 const MODEL_PATH: &str = "vosk-model-en-us-0.42-gigaspeech";
 static MODEL_FULL_PATH: Lazy<String> = Lazy::new(|| format!("{MODEL_DIR}/{MODEL_PATH}"));
@@ -24,7 +23,10 @@ static MODEL_FULL_PATH: Lazy<String> = Lazy::new(|| format!("{MODEL_DIR}/{MODEL_
 #[tokio::main]
 async fn main() {
     println!("cargo:rerun-if-changed=src/build.rs");
-    println!("cargo:rustc-env=MODEL_PATH={}", MODEL_FULL_PATH.as_str());
+    println!(
+        "cargo:rustc-env=VOSK_MODEL_PATH={}",
+        MODEL_FULL_PATH.as_str()
+    );
 
     if std::env::var("CI").is_ok() {
         println!("CI/CD pipeline detected, skipping model download.");
@@ -53,7 +55,23 @@ async fn main() {
         panic!("Failed to extract model: {e}");
     }
 
-    println!("Model download and extraction complete.");
+    // Create .env if it doesn't exist
+    let env_path = Path::new(".env");
+    if !env_path.exists() {
+        let mut file = File::create(env_path).expect("Failed to create .env file");
+        writeln!(file, "VOSK_MODEL_PATH={}", MODEL_FULL_PATH.as_str())
+            .expect("Failed to write to .env file");
+    } else {
+        // If .env exists, ensure it has the correct path
+        let mut file = File::options()
+            .append(true)
+            .open(env_path)
+            .expect("Failed to open .env file");
+        writeln!(file, "VOSK_MODEL_PATH={}", MODEL_FULL_PATH.as_str())
+            .expect("Failed to write to .env file");
+    }
+
+    println!("Model download and Path declaration complete.");
 }
 
 async fn download_zip(url: &str) -> Result<Vec<u8>, Box<dyn Error>> {

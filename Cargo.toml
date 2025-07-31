@@ -1,6 +1,6 @@
 [package]
 name = "easy_sermon"
-version = "1.3.0"
+version = "2.0.0"
 edition = "2021"
 authors = [
     "Christian Mbaba <mxlightningx@gmail.com>",
@@ -9,15 +9,21 @@ authors = [
 ]
 
 [dependencies]
+anyhow = "1.0.98"
 cpal = "0.16.0"
+dotenv = "0.15.0"
+fuzzy-matcher = "0.3.7"
 hashbrown = "0.15.4"
 idna = "1.0.3"
+once_cell = "1.21.3"
 openssl = "0.10.73"
+regex = "1.11.1"
 reqwest = { version = "0.12.22", features = ["json"] }
 serde = "1.0.219"
 serde_json = "1.0.141"
 tokio = "1.47.0"
 url = "2.5.4"
+vosk = "0.3"
 
 [build-dependencies]
 futures-util = "0.3.31"
