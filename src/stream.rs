@@ -1,127 +1,118 @@
-use rodio::{Decoder, OutputStream, Sink, Source};
-use std::collections::VecDeque;
-use std::fs::File;
-use std::io::BufReader;
-use std::sync::mpsc::channel;
-use std::thread;
-use std::time::Instant;
-use symphonia::core::audio::{AudioBufferRef, Signal};
-use symphonia::core::codecs::DecoderOptions;
-use symphonia::core::errors::Error as SymphoniaError;
-use symphonia::core::formats::FormatOptions;
-use symphonia::core::io::MediaSourceStream;
-use symphonia::core::meta::MetadataOptions;
-use symphonia::core::probe::Hint;
-use symphonia::default::{get_codecs, get_probe};
-use vosk::CompleteResult;
-use vosk::Model;
-use vosk::Recognizer;
+use crate::devices::list_input_outputs;
+use anyhow::Result;
+use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+use cpal::{SampleFormat, StreamConfig};
+use std::io::{self, Write};
 
-/* External crates needed in Cargo.toml:
-crossbeam-channel = "0.5.15"
-rodio = "0.17.3"
-serde = { version = "1.0.219", features = ["derive"] }
-serde_json = "1.0.141"
-symphonia = { version = "0.5.2", features = ["mp3", "wav", "flac"] }
-vosk = "0.3.1"
-*/
+// use std::error::Error;
+// use std::sync::{Arc, Mutex};
+// use vosk::{DecodingState, Model, Recognizer};
 
-pub fn run_transcription_loop(audio_path: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let model = Model::new("model");
-    let mut recognizer = Recognizer::new(&model.unwrap(), 16000.0);
+#[allow(dead_code)]
+pub fn start() -> Result<(), Box<dyn std::error::Error>> {
+    // List input/output devices
+    list_input_outputs();
 
-    let file = File::open(audio_path)?;
-    let mss = MediaSourceStream::new(Box::new(file), Default::default());
-    let hint = Hint::new();
-    let probed = get_probe().format(
-        &hint,
-        mss,
-        &FormatOptions::default(),
-        &MetadataOptions::default(),
+    let host = cpal::default_host();
+    let device = host
+        .default_input_device()
+        .expect("No input device available");
+
+    println!("Using input device: {}", device.name()?);
+
+    let cfg = device.default_input_config()?;
+    let cfg: StreamConfig = cfg.into();
+    println!("Default input config: {:?}", cfg);
+
+    let stream = match device.default_input_config()?.sample_format() {
+        SampleFormat::F32 => build_stream_f32(&device, &cfg)?,
+        SampleFormat::I16 => build_stream_i16(&device, &cfg)?,
+        SampleFormat::U16 => build_stream_u16(&device, &cfg)?,
+        _ => return Err("Unsupported sample format".into()),
+    };
+
+    stream.play()?;
+
+    // Block until Enter pressed
+    let mut input = String::new();
+    let _ = io::stdin().read_line(&mut input);
+    Ok(())
+}
+
+fn build_stream_f32(
+    device: &cpal::Device,
+    cfg: &StreamConfig,
+) -> Result<cpal::Stream, Box<dyn std::error::Error>> {
+    let channels = cfg.channels as usize;
+    let err_fn = |e| eprintln!("Stream error: {}", e);
+
+    let stream = device.build_input_stream(
+        cfg,
+        move |data: &[f32], _: &cpal::InputCallbackInfo| {
+            let avg: f32 = data
+                .chunks(channels)
+                .map(|frame| frame[0].abs())
+                .sum::<f32>()
+                / (data.len() / channels).max(1) as f32;
+            print!("\rMic Level: {:.4}", avg);
+            io::stdout().flush().unwrap();
+        },
+        err_fn,
+        None,
     )?;
 
-    let mut format = probed.format;
-    let track = format
-        .default_track()
-        .ok_or_else(|| SymphoniaError::DecodeError("No default track"))?;
+    Ok(stream)
+}
 
-    let decoder = get_codecs().make(&track.codec_params, &DecoderOptions::default())?;
+fn build_stream_i16(
+    device: &cpal::Device,
+    cfg: &StreamConfig,
+) -> Result<cpal::Stream, Box<dyn std::error::Error>> {
+    let channels = cfg.channels as usize;
+    let err_fn = |e| eprintln!("Stream error: {}", e);
 
-    let (_stream, stream_handle) = OutputStream::try_default()?;
-    let sink = Sink::try_new(&stream_handle);
+    let stream = device.build_input_stream(
+        cfg,
+        move |data: &[i16], _: &cpal::InputCallbackInfo| {
+            let avg: f32 = data
+                .chunks(channels)
+                .map(|frame| (frame[0] as f32 / i16::MAX as f32).abs())
+                .sum::<f32>()
+                / (data.len() / channels).max(1) as f32;
+            print!("\rMic Level: {:.4}", avg);
+            io::stdout().flush().unwrap();
+        },
+        err_fn,
+        None,
+    )?;
 
-    let file = File::open(audio_path)?;
-    let source = Decoder::new(BufReader::new(file))?.buffered();
-    sink?.append(source);
+    Ok(stream)
+}
 
-    let (tx, rx) = channel();
-    thread::spawn(move || loop {
-        match format.next_packet() {
-            Ok(packet) => match decoder.decode(&packet) {
-                Ok(audio_buf) => {
-                    if let AudioBufferRef::F32(buf) = audio_buf {
-                        let samples: Vec<i16> = buf
-                            .chan(0)
-                            .iter()
-                            .map(|s| (*s * i16::MAX as f32) as i16)
-                            .collect();
-                        let _ = tx.send(samples);
-                    }
-                }
-                Err(_) => continue,
-            },
-            Err(_) => break,
-        }
-    });
+fn build_stream_u16(
+    device: &cpal::Device,
+    cfg: &StreamConfig,
+) -> Result<cpal::Stream, Box<dyn std::error::Error>> {
+    let channels = cfg.channels as usize;
+    let err_fn = |e| eprintln!("Stream error: {}", e);
 
-    let mut recent: VecDeque<String> = VecDeque::with_capacity(5);
-    let mut last_seen = std::collections::HashMap::new();
-    let mut last_detection_time = Instant::now();
+    let stream = device.build_input_stream(
+        cfg,
+        move |data: &[u16], _: &cpal::InputCallbackInfo| {
+            let avg: f32 = data
+                .chunks(channels)
+                .map(|frame| {
+                    let s = frame[0] as f32 / u16::MAX as f32;
+                    (s * 2.0 - 1.0).abs()
+                })
+                .sum::<f32>()
+                / (data.len() / channels).max(1) as f32;
+            print!("\rMic Level: {:.4}", avg);
+            io::stdout().flush().unwrap();
+        },
+        err_fn,
+        None,
+    )?;
 
-    while let Ok(samples) = rx.recv() {
-        recognizer.expect("REASON").accept_waveform(&samples);
-
-        let partial = recognizer.expect("REASON").partial_result();
-        let t = partial.partial.trim().to_lowercase();
-
-        if !t.is_empty() && t.len() > 1 {
-            if let Some(pos) = recent.iter().position(|x| *x == t) {
-                if pos == recent.len() - 1 {
-                    // already last, do nothing
-                } else {
-                    recent.remove(pos);
-                    recent.push_back(t.clone());
-                    println!("RESHUFFLED TO BACK: {}", t);
-                }
-            } else {
-                recent.push_back(t.clone());
-                if recent.len() > 5 {
-                    recent.pop_front();
-                }
-                println!("NEW: {}", t);
-            }
-        }
-
-        if recognizer.final_result_ready() {
-            match recognizer.expect("REASON").result() {
-                CompleteResult::Single(text) => {
-                    let final_text = text.text.trim().to_lowercase();
-                    if !final_text.is_empty() {
-                        println!("FINAL: {}", final_text);
-                    }
-                }
-                CompleteResult::Multiple(alternatives) => {
-                    if let Some(first) = alternatives.alternatives.first() {
-                        let final_text = first.text.trim().to_lowercase();
-                        if !final_text.is_empty() {
-                            println!("FINAL: {}", final_text);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    sink?.sleep_until_end();
-    Ok(())
+    Ok(stream)
 }
