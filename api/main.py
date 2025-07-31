@@ -13,12 +13,20 @@ from api.stream import start_vosk_stream, detected_verses
 BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
-if torch.backends.mps.is_available():
-    mps_device = torch.device("mps")
-    x = torch.ones(1, device=mps_device)
-    print(x)
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+elif torch.backends.mps.is_available():
+    device = torch.device("mps")
 else:
-    print("MPS device not found.")
+    device = torch.device("cpu")
+
+if device.type == "cuda":
+    torch.set_default_dtype(torch.float16)
+else:
+    torch.set_default_dtype(torch.float32)
+
+torch.set_default_device(device)
+print(f"Device:", device.type)
 
 
 @asynccontextmanager

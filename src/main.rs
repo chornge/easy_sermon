@@ -15,7 +15,6 @@ fn main() {
         .arg("0.0.0.0")
         .arg("--port")
         .arg("80")
-        .arg("--reload")
         .arg("--log-level")
         .arg("warning")
         .status()
