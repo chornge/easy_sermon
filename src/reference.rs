@@ -2,12 +2,6 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use std::collections::HashMap;
 
-/* External crates needed in Cargo.toml:
-fuzzy-matcher = "0.3.7"
-once_cell = "1.21.3"
-regex = "1.11.1"
-word-to-num = "0.1"
-*/
 static ORDINALS: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert("first", "1");
@@ -106,13 +100,6 @@ static BIBLE_STRUCTURE: Lazy<HashMap<&'static str, Vec<usize>>> = Lazy::new(|| {
     map
 });
 
-static BOOKS: Lazy<Vec<&'static str>> = Lazy::new(|| {
-    BIBLE_STRUCTURE
-        .keys()
-        .map(|&b| b.to_lowercase().as_str())
-        .collect()
-});
-
 static REF_RE: Lazy<Regex> = Lazy::new(|| {
     let books = BIBLE_STRUCTURE
         .keys()
@@ -134,6 +121,54 @@ static REF_RE: Lazy<Regex> = Lazy::new(|| {
     Regex::new(&pattern).unwrap()
 });
 
+pub mod word_to_num {
+    use std::collections::HashMap;
+
+    pub fn parse(tok: &str) -> Result<u32, &'static str> {
+        let nums: HashMap<&str, u32> = [
+            ("zero", 0),
+            ("oh", 0),
+            ("o", 0),
+            ("one", 1),
+            ("two", 2),
+            ("three", 3),
+            ("four", 4),
+            ("five", 5),
+            ("six", 6),
+            ("seven", 7),
+            ("eight", 8),
+            ("nine", 9),
+            ("ten", 10),
+            ("eleven", 11),
+            ("twelve", 12),
+            ("thirteen", 13),
+            ("fourteen", 14),
+            ("fifteen", 15),
+            ("sixteen", 16),
+            ("seventeen", 17),
+            ("eighteen", 18),
+            ("nineteen", 19),
+            ("twenty", 20),
+            ("thirty", 30),
+            ("forty", 40),
+            ("fifty", 50),
+            ("sixty", 60),
+            ("seventy", 70),
+            ("eighty", 80),
+            ("ninety", 90),
+            ("hundred", 100),
+        ]
+        .iter()
+        .cloned()
+        .collect();
+
+        match nums.get(tok) {
+            Some(&num) => Ok(num),
+            None => Err("Invalid number word"),
+        }
+    }
+}
+
 /// Normalize ordinals like "first" → "1"
 fn normalize_ordinals(text: &str) -> String {
     let mut s = text.to_string();
@@ -154,7 +189,6 @@ fn word_to_number(token: &str) -> Option<String> {
     if let Ok(n) = tok.parse::<usize>() {
         return Some(n.to_string());
     }
-    // Use word_to_num crate
     match word_to_num::parse(&tok) {
         Ok(n) => Some(n.to_string()),
         Err(_) => None,
@@ -170,7 +204,7 @@ fn fuzzy_book_match(candidate: &str) -> Option<String> {
     let mut best: Option<(&str, i64)> = None;
     for &book in BIBLE_STRUCTURE.keys() {
         if let Some(score) = matcher.fuzzy_match(&book.to_lowercase(), &candidate.to_lowercase()) {
-            if best.map_or(true, |(_, s)| score > s) {
+            if best.is_none_or(|(_, s)| score > s) {
                 best = Some((book, score));
             }
         }
@@ -238,11 +272,18 @@ pub fn extract_bible_reference(input: &str) -> Vec<String> {
             Some(c) => c,
             None => continue,
         };
-        let start = word_to_number(verse_start_raw).unwrap_or_else(|| "1".into());
+        let start = word_to_number(verse_start_raw).or_else(|| {
+            if verse_start_raw.is_empty() {
+                Some("1".to_string())
+            } else {
+                None
+            }
+        });
+
         let end = word_to_number(verse_end_raw);
 
         let chap_n: usize = chap.parse().unwrap();
-        let start_n: usize = start.parse().unwrap();
+        let start_n: usize = start.expect("REASON: start_n").parse().unwrap();
         let verses = match BIBLE_STRUCTURE.get(book.as_str()) {
             Some(v) => v,
             None => continue,

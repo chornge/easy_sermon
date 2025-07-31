@@ -4,6 +4,7 @@ use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{SampleFormat, StreamConfig};
 use std::io::{self, Write};
 
+// use crate::reference::extract_bible_reference;
 // use std::error::Error;
 // use std::sync::{Arc, Mutex};
 // use vosk::{DecodingState, Model, Recognizer};
@@ -33,9 +34,15 @@ pub fn start() -> Result<(), Box<dyn std::error::Error>> {
 
     stream.play()?;
 
-    // Block until Enter pressed
+    // Block until 'Enter' is pressed
     let mut input = String::new();
     let _ = io::stdin().read_line(&mut input);
+
+    // Extract Bible reference
+    // let text = "as we turn to john chapter three verse sixteen we see the love God has for us";
+    // let reference = extract_bible_reference(text);
+    // println!("Input: {text:?}, Verse: {reference:?}");
+
     Ok(())
 }
 

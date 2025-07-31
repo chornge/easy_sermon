@@ -1,14 +1,16 @@
 mod devices;
+// mod reference;
 mod stream;
 
 use anyhow::Result;
+use dotenv::dotenv;
 use reqwest::Client;
 use serde_json::json;
+use std::env;
 use std::{error::Error, process::Command};
 
 // use crate::stream::start as start_streaming;
-use dotenv::dotenv;
-use std::env;
+// use crate::reference::extract_bible_reference;
 
 fn main() -> Result<()> {
     // Load .env if present
@@ -24,6 +26,11 @@ fn main() -> Result<()> {
     //         audio_stream.unwrap_err()
     //     );
     // }
+
+    // Extract Bible reference
+    // let text = "as we turn to john chapter three verse sixteen we see the love God has for us";
+    // let reference = extract_bible_reference(text);
+    // println!("Input: {text:?}, Verse: {reference:?}");
 
     // Start audio API server
     let audio_server = Command::new("uvicorn")
