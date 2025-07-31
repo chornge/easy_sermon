@@ -64,8 +64,8 @@ def start_vosk_stream():
                 if ref not in detected_verses:
                     detected_verses.append(ref)
                     print("✅ Got:", ref)
-                    asyncio.run(stage_display(ref))
+                    # asyncio.run(stage_display(ref))
                 else:
                     detected_verses.remove(ref)
                     detected_verses.append(ref)
-                    asyncio.run(stage_display(ref))
+                    # asyncio.run(stage_display(ref))
