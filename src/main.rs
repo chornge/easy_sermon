@@ -17,7 +17,7 @@ fn main() {
         .arg("--log-level")
         .arg("warning")
         .status()
-        .expect("failed to run api/stream.py");
+        .expect("Failed to run api/main.py");
 
     if !stream.success() {
         panic!("Run failed");
@@ -25,12 +25,15 @@ fn main() {
 }
 
 #[allow(dead_code)]
-async fn send_to_propresenter(verse: &str) -> Result<(), Box<dyn Error>> {
-    let pro7_host = "localhost";
-    let pro7_port = 49279;
+async fn stage_display(verse: &str) -> Result<(), Box<dyn Error>> {
+    let pro7_p_host = "localhost";
+    let pro7_p_port = 49279;
     let client = Client::new();
     let response = client
-        .put(format!("http://{pro7_host}:{pro7_port}/v1/stage/message"))
+        .put(format!(
+            "http://{pro7_p_host}:{pro7_p_port}/v1/stage/message"
+        ))
+        .header(reqwest::header::CONTENT_TYPE, "application/json")
         .json(&json!(verse))
         .send()
         .await?;
