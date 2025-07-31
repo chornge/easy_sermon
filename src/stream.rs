@@ -22,7 +22,7 @@ pub fn start() -> Result<(), Box<dyn std::error::Error>> {
 
     let cfg = device.default_input_config()?;
     let cfg: StreamConfig = cfg.into();
-    println!("Default input config: {:?}", cfg);
+    println!("Default input config: {cfg:?}");
 
     let stream = match device.default_input_config()?.sample_format() {
         SampleFormat::F32 => build_stream_f32(&device, &cfg)?,
@@ -44,7 +44,7 @@ fn build_stream_f32(
     cfg: &StreamConfig,
 ) -> Result<cpal::Stream, Box<dyn std::error::Error>> {
     let channels = cfg.channels as usize;
-    let err_fn = |e| eprintln!("Stream error: {}", e);
+    let err_fn = |e| eprintln!("Stream error: {e}");
 
     let stream = device.build_input_stream(
         cfg,
@@ -54,7 +54,7 @@ fn build_stream_f32(
                 .map(|frame| frame[0].abs())
                 .sum::<f32>()
                 / (data.len() / channels).max(1) as f32;
-            print!("\rMic Level: {:.4}", avg);
+            print!("\rMic Level: {avg:.4}");
             io::stdout().flush().unwrap();
         },
         err_fn,
@@ -69,7 +69,7 @@ fn build_stream_i16(
     cfg: &StreamConfig,
 ) -> Result<cpal::Stream, Box<dyn std::error::Error>> {
     let channels = cfg.channels as usize;
-    let err_fn = |e| eprintln!("Stream error: {}", e);
+    let err_fn = |e| eprintln!("Stream error: {e}");
 
     let stream = device.build_input_stream(
         cfg,
@@ -79,7 +79,7 @@ fn build_stream_i16(
                 .map(|frame| (frame[0] as f32 / i16::MAX as f32).abs())
                 .sum::<f32>()
                 / (data.len() / channels).max(1) as f32;
-            print!("\rMic Level: {:.4}", avg);
+            print!("\rMic Level: {avg:.4}");
             io::stdout().flush().unwrap();
         },
         err_fn,
@@ -94,7 +94,7 @@ fn build_stream_u16(
     cfg: &StreamConfig,
 ) -> Result<cpal::Stream, Box<dyn std::error::Error>> {
     let channels = cfg.channels as usize;
-    let err_fn = |e| eprintln!("Stream error: {}", e);
+    let err_fn = |e| eprintln!("Stream error: {e}");
 
     let stream = device.build_input_stream(
         cfg,
@@ -107,7 +107,7 @@ fn build_stream_u16(
                 })
                 .sum::<f32>()
                 / (data.len() / channels).max(1) as f32;
-            print!("\rMic Level: {:.4}", avg);
+            print!("\rMic Level: {avg:.4}");
             io::stdout().flush().unwrap();
         },
         err_fn,
