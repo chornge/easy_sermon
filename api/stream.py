@@ -6,7 +6,7 @@ import sounddevice as sd
 
 from vosk import Model, KaldiRecognizer
 from api.reference import extract_bible_reference
-from api.propresent import propresenter
+from api.propresenter import stage_display
 
 # Global settings
 SAMPLE_RATE = 16000
@@ -64,8 +64,8 @@ def start_vosk_stream():
                 if ref not in detected_verses:
                     detected_verses.append(ref)
                     print("✅ Got:", ref)
-                    # asyncio.run(send_to_propresenter(ref))
+                    asyncio.run(stage_display(ref))
                 else:
                     detected_verses.remove(ref)
                     detected_verses.append(ref)
-                    # asyncio.run(send_to_propresenter(ref))
+                    asyncio.run(stage_display(ref))
