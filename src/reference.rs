@@ -126,9 +126,9 @@ pub mod word_to_num {
 
     pub fn parse(tok: &str) -> Result<u32, &'static str> {
         let nums: HashMap<&str, u32> = [
-            ("zero", 0),
-            ("oh", 0),
             ("o", 0),
+            ("oh", 0),
+            ("zero", 0),
             ("one", 1),
             ("two", 2),
             ("three", 3),
@@ -157,6 +157,9 @@ pub mod word_to_num {
             ("eighty", 80),
             ("ninety", 90),
             ("hundred", 100),
+            ("hundred and", 100),
+            ("one hundred", 100),
+            ("one hundred and", 100),
         ]
         .iter()
         .cloned()
