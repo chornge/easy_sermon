@@ -1,31 +1,28 @@
+import aiohttp
 import asyncio
-import json
-import websockets
 
-PRO7_HOST = "localhost/v1/stage/message"  # PUT instead of POST
-PRO7_PORT = 1025  # Set ProPresenter port
-PASSWORD = ""  # Set ProPresenter password (env)
+PRO7_PORT = 49279
+PRO7_HOST = "localhost"
+PASSWORD = ""
 
 
-async def send_text_to_propresenter(text):
-    uri = f"ws://{PRO7_HOST}:{PRO7_PORT}/remote"
+async def propresenter(text):
+    uri = f"http://{PRO7_HOST}:{PRO7_PORT}/v1/stage/message"
 
-    async with websockets.connect(uri) as websocket:
-        await websocket.send(
-            json.dumps(
-                {"action": "authenticate", "protocol": 701, "password": PASSWORD}
-            )
-        )
-        auth_response = await websocket.recv()
-        print("✅ Auth Response:", auth_response)
+    # Prepare the message payload
+    payload = {
+        "Found": text,
+    }
 
-        # Send text to clear message layer (as a "Message")
-        await websocket.send(json.dumps({"action": "message", "text": text}))
-
-        response = await websocket.recv()
-        print("📤 Sent:", response)
+    # Send payload to ProPresenter
+    async with aiohttp.ClientSession() as session:
+        async with session.put(uri, json=payload) as response:
+            if response.status == 200:
+                print(f"✅ Sent to ProPresenter: {text}")
+            else:
+                print(f"❌ Failed to send to ProPresenter: {response.status}")
 
 
 if __name__ == "__main__":
-    asyncio.run(send_text_to_propresenter("Genesis 1:2"))
-    # asyncio.run(send_text_to_propresenter("1 John 1:2"))
+    asyncio.run(propresenter("Genesis 1:2"))
+    # asyncio.run(propresenter("1 John 1:2"))
