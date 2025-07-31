@@ -1,12 +1,6 @@
 import re
 from word2number import w2n
 from fuzzywuzzy import process
-from transformers import pipeline
-
-question_answerer = pipeline(
-    task="question-answering", model="deepset/roberta-base-squad2"
-)
-question = "What complete Bible verses are currently present?"
 
 ORDINALS = {
     "first": "1",

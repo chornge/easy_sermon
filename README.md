@@ -51,3 +51,9 @@ Navigate to `http://localhost` on the browser. Allow microphone access (if the p
 "first corinthians thirteen verse four" -> [1 Corinthians 13:4]
 "viewing psalm one hundred and five verse forty" -> [Psalm 105:40]
 ```
+
+## Limitations
+
+• EasySermon struggles with `Nehemiah` and `Psalms 100-150`.
+
+• The word `"verse"` must be present for EasySermon to recognize a Bible verse.
