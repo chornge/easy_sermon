@@ -26,7 +26,7 @@ static ORDINAL_RULES: Lazy<HashMap<&'static str, usize>> = Lazy::new(|| {
 });
 
 #[rustfmt::skip]
-static BIBLE_STRUCTURE: Lazy<HashMap<&'static str, Vec<usize>>> = Lazy::new(|| {
+static BIBLE_MAP: Lazy<HashMap<&'static str, Vec<usize>>> = Lazy::new(|| {
     let mut map = HashMap::new();
     // Old Testament
     map.insert("Genesis", vec![31,25,24,26,32,22,24,22,29,32,32,20,18,24,21,16,27,33,38,18,34,24,20,67,34,35,46,22,35,43,55,32,20,31,29,43,36,30,23,23,57,38,34,34,28,34,31,22,33,26]);
@@ -101,7 +101,7 @@ static BIBLE_STRUCTURE: Lazy<HashMap<&'static str, Vec<usize>>> = Lazy::new(|| {
 });
 
 static REF_RE: Lazy<Regex> = Lazy::new(|| {
-    let books = BIBLE_STRUCTURE
+    let books = BIBLE_MAP
         .keys()
         .map(|b| regex::escape(&b.to_lowercase()))
         .collect::<Vec<_>>()
@@ -121,6 +121,99 @@ static REF_RE: Lazy<Regex> = Lazy::new(|| {
     Regex::new(&pattern).unwrap()
 });
 
+#[allow(dead_code)]
+/// Extract a Bible verse from an input text
+pub fn bible_verse(input: &str) -> Vec<String> {
+    let mut text = normalize_ordinals(input);
+    text = text.replace("psalms", "psalm");
+    text = text.replace("revelations", "revelation");
+    text = text.replace("songs of solomon", "song of solomon");
+
+    let mut results = Vec::new();
+    for cap in REF_RE.captures_iter(&text) {
+        let ord_raw = cap.get(1).map(|m| m.as_str());
+        let book_raw = cap.get(2).unwrap().as_str();
+        let chap_raw = cap.get(3).unwrap().as_str();
+        let verse_start_raw = cap.get(4).map(|m| m.as_str()).unwrap_or("");
+        let verse_end_raw = cap.get(5).map(|m| m.as_str()).unwrap_or("");
+
+        let ord_num = ord_raw.and_then(|o| o.parse::<usize>().ok());
+        let fuzzy = fuzzy_book_match(book_raw);
+        if fuzzy.is_none() {
+            continue;
+        }
+
+        let fb = fuzzy.unwrap();
+
+        // Determine book key
+        let book_key = if fb == "john" {
+            if let Some(n) = ord_num {
+                format!("{n} john")
+            } else {
+                "john".into()
+            }
+        } else if let Some(&max_ord) = ORDINAL_RULES.get(fb.as_str()) {
+            if ord_num.unwrap_or(0) == 0 || ord_num.unwrap() > max_ord {
+                continue;
+            }
+            format!("{} {}", ord_num.unwrap(), fb)
+        } else {
+            fb.clone()
+        };
+        let book = book_key
+            .split(' ')
+            .map(|w| {
+                let mut c = w.chars();
+                match c.next() {
+                    None => String::new(),
+                    Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+                }
+            })
+            .collect::<Vec<_>>()
+            .join(" ");
+
+        // Chapter & verse conversion
+        let chap = match word_to_number(chap_raw) {
+            Some(c) => c,
+            None => continue,
+        };
+        let start = word_to_number(verse_start_raw).or_else(|| {
+            if verse_start_raw.is_empty() {
+                Some("1".to_string())
+            } else {
+                None
+            }
+        });
+
+        let end = word_to_number(verse_end_raw);
+
+        let chap_n: usize = chap.parse().unwrap();
+        let start_n: usize = start.expect("REASON: start_n").parse().unwrap();
+        let verses = match BIBLE_MAP.get(book.as_str()) {
+            Some(v) => v,
+            None => continue,
+        };
+        if chap_n == 0 || chap_n > verses.len() {
+            continue;
+        }
+        if start_n == 0 || start_n > verses[chap_n - 1] {
+            continue;
+        }
+
+        let mut reference = format!("{book} {chap_n}:{start_n}");
+        if let Some(e) = end {
+            let end_n: usize = e.parse().unwrap();
+            if end_n >= start_n && end_n <= verses[chap_n - 1] {
+                reference = format!("{reference}-{end_n}");
+            }
+        }
+        results.push(reference);
+    }
+
+    results
+}
+
+/// Map for converting words to numbers, e.g. "twenty" → "20"
 pub mod word_to_num {
     use std::collections::HashMap;
 
@@ -176,7 +269,7 @@ pub mod word_to_num {
 fn normalize_ordinals(text: &str) -> String {
     let mut s = text.to_string();
     for (word, digit) in ORDINALS.iter() {
-        let re = Regex::new(&format!(r"(?i)\\b{}\\b", word)).unwrap();
+        let re = Regex::new(&format!(r"(?i)\\b{word}\\b")).unwrap();
         s = re.replace_all(&s, *digit).into_owned();
     }
 
@@ -205,7 +298,7 @@ fn fuzzy_book_match(candidate: &str) -> Option<String> {
 
     let matcher = SkimMatcherV2::default();
     let mut best: Option<(&str, i64)> = None;
-    for &book in BIBLE_STRUCTURE.keys() {
+    for &book in BIBLE_MAP.keys() {
         if let Some(score) = matcher.fuzzy_match(&book.to_lowercase(), &candidate.to_lowercase()) {
             if best.is_none_or(|(_, s)| score > s) {
                 best = Some((book, score));
@@ -218,95 +311,4 @@ fn fuzzy_book_match(candidate: &str) -> Option<String> {
         }
     }
     None
-}
-
-/// Extract Bible references from an input text
-pub fn extract_bible_reference(input: &str) -> Vec<String> {
-    let mut text = normalize_ordinals(input);
-    text = text.replace("psalms", "psalm");
-    text = text.replace("revelations", "revelation");
-    text = text.replace("songs of solomon", "song of solomon");
-
-    let mut results = Vec::new();
-    for cap in REF_RE.captures_iter(&text) {
-        let ord_raw = cap.get(1).map(|m| m.as_str());
-        let book_raw = cap.get(2).unwrap().as_str();
-        let chap_raw = cap.get(3).unwrap().as_str();
-        let verse_start_raw = cap.get(4).map(|m| m.as_str()).unwrap_or("");
-        let verse_end_raw = cap.get(5).map(|m| m.as_str()).unwrap_or("");
-
-        let ord_num = ord_raw.and_then(|o| o.parse::<usize>().ok());
-        let fuzzy = fuzzy_book_match(book_raw);
-        if fuzzy.is_none() {
-            continue;
-        }
-
-        let fb = fuzzy.unwrap();
-
-        // Determine book key
-        let book_key = if fb == "john" {
-            if let Some(n) = ord_num {
-                format!("{} john", n)
-            } else {
-                "john".into()
-            }
-        } else if let Some(&max_ord) = ORDINAL_RULES.get(fb.as_str()) {
-            if ord_num.unwrap_or(0) == 0 || ord_num.unwrap() > max_ord {
-                continue;
-            }
-            format!("{} {}", ord_num.unwrap(), fb)
-        } else {
-            fb.clone()
-        };
-        let book = book_key
-            .split(' ')
-            .map(|w| {
-                let mut c = w.chars();
-                match c.next() {
-                    None => String::new(),
-                    Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
-                }
-            })
-            .collect::<Vec<_>>()
-            .join(" ");
-
-        // Chapter & verse conversion
-        let chap = match word_to_number(chap_raw) {
-            Some(c) => c,
-            None => continue,
-        };
-        let start = word_to_number(verse_start_raw).or_else(|| {
-            if verse_start_raw.is_empty() {
-                Some("1".to_string())
-            } else {
-                None
-            }
-        });
-
-        let end = word_to_number(verse_end_raw);
-
-        let chap_n: usize = chap.parse().unwrap();
-        let start_n: usize = start.expect("REASON: start_n").parse().unwrap();
-        let verses = match BIBLE_STRUCTURE.get(book.as_str()) {
-            Some(v) => v,
-            None => continue,
-        };
-        if chap_n == 0 || chap_n > verses.len() {
-            continue;
-        }
-        if start_n == 0 || start_n > verses[chap_n - 1] {
-            continue;
-        }
-
-        let mut reference = format!("{} {}:{}", book, chap_n, start_n);
-        if let Some(e) = end {
-            let end_n: usize = e.parse().unwrap();
-            if end_n >= start_n && end_n <= verses[chap_n - 1] {
-                reference = format!("{}-{}", reference, end_n);
-            }
-        }
-        results.push(reference);
-    }
-
-    results
 }

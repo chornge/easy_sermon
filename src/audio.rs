@@ -10,7 +10,7 @@ use std::io::{self, Write};
 // use vosk::{DecodingState, Model, Recognizer};
 
 #[allow(dead_code)]
-pub fn start() -> Result<(), Box<dyn std::error::Error>> {
+pub fn speech_to_text() -> Result<(), Box<dyn std::error::Error>> {
     // List input/output devices
     list_input_outputs();
 

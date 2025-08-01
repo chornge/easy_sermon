@@ -9,7 +9,7 @@ import threading
 
 # import torch
 
-from api.stream import start_vosk_stream, detected_verses
+from api.audio import speech_to_text, verses
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
@@ -31,7 +31,7 @@ templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    threading.Thread(target=start_vosk_stream, daemon=True).start()
+    threading.Thread(target=speech_to_text, daemon=True).start()
     yield
 
 
@@ -41,5 +41,5 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse(
-        "index.html", {"request": request, "verses": detected_verses}
+        "index.html", {"request": request, "verses": verses}
     )

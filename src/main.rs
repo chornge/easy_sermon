@@ -1,25 +1,25 @@
+mod audio;
 mod devices;
-// mod reference;
-mod stream;
+mod propresenter;
+mod scriptures;
 
 use anyhow::Result;
 use dotenv::dotenv;
-use reqwest::Client;
-use serde_json::json;
-use std::env;
-use std::{error::Error, process::Command};
+use std::{env, process::Command};
 
-// use crate::stream::start as start_streaming;
-// use crate::reference::extract_bible_reference;
+// use crate::audio::speech_to_text;
+// use crate::propresenter::stage_display;
+// use crate::scriptures::bible_verse;
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     // Load .env if present
     dotenv().ok();
     env::var("VOSK_MODEL_PATH")
         .expect("Set VOSK_MODEL_PATH environment variable to the Vosk model directory path");
 
     // Start audio stream
-    // let audio_stream = start_streaming();
+    // let audio_stream = speech_to_text();
     // if audio_stream.is_err() {
     //     panic!(
     //         "Failed to start audio stream: {}",
@@ -27,13 +27,22 @@ fn main() -> Result<()> {
     //     );
     // }
 
-    // Extract Bible reference
-    // let text = "as we turn to john chapter three verse sixteen we see the love God has for us";
-    // let reference = extract_bible_reference(text);
-    // println!("Input: {text:?}, Verse: {reference:?}");
+    // for &line in &[
+    //     "at genesis chapter two verses eight and nine",
+    //     "as it says in john three verse sixteen",
+    //     "the book of ezekiel chapter thirty verse two",
+    //     "in psalm eighty three verse twelve",
+    //     "going back to psalm one hundred five verse forty",
+    //     "first corinthians thirteen verse four",
+    //     "again in third john one verse two",
+    //     "open your bibles to revelations twenty verse three",
+    // ] {
+    //     let reference = bible_verse(line);
+    //     println!("🔍 Audio: {line} \n✅ Got: {reference:?} \n");
+    // }
 
-    // Start audio API server
-    let audio_server = Command::new("uvicorn")
+    // Start API server
+    let api_server = Command::new("uvicorn")
         .arg("api.main:app")
         .arg("--host")
         .arg("0.0.0.0")
@@ -43,26 +52,13 @@ fn main() -> Result<()> {
         .arg("warning")
         .status()
         .expect("Failed to run api/main.py");
-    if !audio_server.success() {
+
+    if !api_server.success() {
         panic!("API server failed to start");
     }
 
-    Ok(())
-}
+    // Send message to stage display
+    // let _ = stage_display("Genesis 1:2-9").await;
 
-async fn _stage_display(verse: &str) -> Result<(), Box<dyn Error>> {
-    let pro7_p_host = "localhost";
-    let pro7_p_port = 49279;
-    let client = Client::new();
-    let response = client
-        .put(format!(
-            "http://{pro7_p_host}:{pro7_p_port}/v1/stage/message"
-        ))
-        .header(reqwest::header::CONTENT_TYPE, "application/json")
-        .json(&json!(verse))
-        .send()
-        .await?;
-
-    println!("Verse sent, Response: {response:?}");
     Ok(())
 }
