@@ -38,7 +38,7 @@ async fn main() -> Result<()> {
     //     "open your bibles to revelations twenty verse three",
     // ] {
     //     let reference = bible_verse(line);
-    //     println!("🔍 Audio: {line}: \n✅ Got: {reference:?} \n");
+    //     println!("🔍 Audio: {line} \n✅ Got: {reference:?} \n");
     // }
 
     // Start API server

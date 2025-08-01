@@ -148,7 +148,7 @@ pub fn bible_verse(input: &str) -> Vec<String> {
         // Determine book key
         let book_key = if fb == "john" {
             if let Some(n) = ord_num {
-                format!("{} john", n)
+                format!("{n} john")
             } else {
                 "john".into()
             }
@@ -200,11 +200,11 @@ pub fn bible_verse(input: &str) -> Vec<String> {
             continue;
         }
 
-        let mut reference = format!("{} {}:{}", book, chap_n, start_n);
+        let mut reference = format!("{book} {chap_n}:{start_n}");
         if let Some(e) = end {
             let end_n: usize = e.parse().unwrap();
             if end_n >= start_n && end_n <= verses[chap_n - 1] {
-                reference = format!("{}-{}", reference, end_n);
+                reference = format!("{reference}-{end_n}");
             }
         }
         results.push(reference);
@@ -269,7 +269,7 @@ pub mod word_to_num {
 fn normalize_ordinals(text: &str) -> String {
     let mut s = text.to_string();
     for (word, digit) in ORDINALS.iter() {
-        let re = Regex::new(&format!(r"(?i)\\b{}\\b", word)).unwrap();
+        let re = Regex::new(&format!(r"(?i)\\b{word}\\b")).unwrap();
         s = re.replace_all(&s, *digit).into_owned();
     }
 
