@@ -1,4 +1,3 @@
-use crate::devices::list_input_outputs;
 use anyhow::Result;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{SampleFormat, StreamConfig};
@@ -9,17 +8,41 @@ use std::io::{self, Write};
 // use std::sync::{Arc, Mutex};
 // use vosk::{DecodingState, Model, Recognizer};
 
+fn fetch_devices() {
+    let host = cpal::default_host();
+    let devices = match host.devices() {
+        Ok(d) => d,
+        Err(e) => {
+            eprintln!("Error getting devices: {e}");
+            return;
+        }
+    };
+
+    for (i, device) in devices.enumerate() {
+        let name = device.name().unwrap_or_else(|_| "Unknown".to_string());
+
+        let supported_configs = device.supported_input_configs();
+        let is_input = supported_configs.is_ok_and(|mut sc| sc.next().is_some());
+
+        println!(
+            "{}: {} ({})",
+            i,
+            name,
+            if is_input { "Input ✅" } else { "Output 🛑" }
+        );
+    }
+}
+
 #[allow(dead_code)]
 pub fn speech_to_text() -> Result<(), Box<dyn std::error::Error>> {
-    // List input/output devices
-    list_input_outputs();
+    fetch_devices();
 
     let host = cpal::default_host();
     let device = host
         .default_input_device()
-        .expect("No input device available");
+        .expect("No input devices available");
 
-    println!("Using input device: {}", device.name()?);
+    println!("Using: {}", device.name()?);
 
     let cfg = device.default_input_config()?;
     let cfg: StreamConfig = cfg.into();
