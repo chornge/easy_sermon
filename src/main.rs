@@ -29,12 +29,11 @@ async fn main() -> Result<()> {
     // for &line in &[
     //     "at genesis chapter two verses eight and nine",
     //     "as it says in john three verse sixteen",
-    //     "the book of ezekiel chapter thirty verse two",
-    //     "in psalm eighty three verse twelve",
+    //     "the book of ezekiel chapter thirty three verse two",
     //     "going back to psalm one hundred five verse forty",
     //     "first corinthians thirteen verse four",
     //     "again in third john one verse two",
-    //     "open your bibles to revelations twenty verse three",
+    //     "open your bibles to revelations twenty two verse three",
     // ] {
     //     let reference = bible_verse(line);
     //     println!("🔍 Audio: {line} \n✅ Got: {reference:?} \n");
@@ -51,7 +50,6 @@ async fn main() -> Result<()> {
         .arg("warning")
         .status()
         .expect("Failed to run api/main.py");
-
     if !api_server.success() {
         panic!("API server failed to start");
     }

@@ -106,60 +106,70 @@ static REF_RE: Lazy<Regex> = Lazy::new(|| {
         .map(|b| regex::escape(&b.to_lowercase()))
         .collect::<Vec<_>>()
         .join("|");
-    let pattern = format!(
-        r"(?xi)
-        \b
-        (?:(\d+)\s+)?
-        ({books})
-        \s+(?:chapter\s+)?([\w\s\-]+?)
-        \s+verses?\s+
-          ([\w\s\-]+?)    
-          (?:\s*(?:-|–|—|to|through|and)\s+([\w\s\-]+?))?
-        \b
-    "
+    let pat = format!(
+        r"(?i)\b(?:(\d+)\s+)?({books})\s+(?:chapter\s+)?([\w\s-]+)\s+verses?\s+([\w\s-]+?)(?:\s*(?:-|–|—|to|through|and)\s+([\w\s-]+))?\b"
     );
-    Regex::new(&pattern).unwrap()
+    Regex::new(&pat).unwrap()
 });
+
+/// - Normalize ordinals like "first" → "1", "second" → "2", etc.
+/// - Also handles "1st", "2nd", "3rd", etc.
+fn normalize_ordinals(text: &str) -> String {
+    let mut s = text.to_string();
+    for (word, digit) in ORDINALS.iter() {
+        let re = Regex::new(&format!(r"(?i)\b{}\b", regex::escape(word))).unwrap();
+        s = re.replace_all(&s, *digit).into_owned();
+    }
+    s
+}
+
+///   - vs. becomes verses, v. becomes verse
+///   - revelations becomes revelation, etc.
+fn normalize_text(input: &str) -> String {
+    let mut text = normalize_ordinals(input);
+    text = Regex::new(r"(?i)\bvs\.?\b")
+        .unwrap()
+        .replace_all(&text, "verses")
+        .into_owned();
+    text = Regex::new(r"(?i)\bv\.?\b")
+        .unwrap()
+        .replace_all(&text, "verse")
+        .into_owned();
+
+    text.replace("psalms", "psalm")
+        .replace("revelations", "revelation")
+        .replace("songs of solomon", "song of solomon")
+}
 
 #[allow(dead_code)]
 /// Extract a Bible verse from an input text
 pub fn bible_verse(input: &str) -> Vec<String> {
-    let mut text = normalize_ordinals(input);
-    text = text.replace("psalms", "psalm");
-    text = text.replace("revelations", "revelation");
-    text = text.replace("songs of solomon", "song of solomon");
+    let text = normalize_text(input);
 
     let mut results = Vec::new();
     for cap in REF_RE.captures_iter(&text) {
         let ord_raw = cap.get(1).map(|m| m.as_str());
         let book_raw = cap.get(2).unwrap().as_str();
-        let chap_raw = cap.get(3).unwrap().as_str();
-        let verse_start_raw = cap.get(4).map(|m| m.as_str()).unwrap_or("");
-        let verse_end_raw = cap.get(5).map(|m| m.as_str()).unwrap_or("");
-
         let ord_num = ord_raw.and_then(|o| o.parse::<usize>().ok());
-        let fuzzy = fuzzy_book_match(book_raw);
-        if fuzzy.is_none() {
-            continue;
-        }
+        let fuzzy = match fuzzy_book_match(book_raw) {
+            Some(f) => f,
+            None => continue,
+        };
 
-        let fb = fuzzy.unwrap();
-
-        // Determine book key
-        let book_key = if fb == "john" {
+        let book_key = if fuzzy == "john" {
             if let Some(n) = ord_num {
                 format!("{n} john")
             } else {
                 "john".into()
             }
-        } else if let Some(&max_ord) = ORDINAL_RULES.get(fb.as_str()) {
-            if ord_num.unwrap_or(0) == 0 || ord_num.unwrap() > max_ord {
+        } else if let Some(&max_ord) = ORDINAL_RULES.get(fuzzy.as_str()) {
+            let n = ord_num.unwrap_or(0);
+            if n == 0 || n > max_ord {
                 continue;
             }
-            let ord = ord_num.unwrap();
-            format!("{ord} {fb}")
+            format!("{n} {fuzzy}")
         } else {
-            fb.clone()
+            fuzzy.clone()
         };
         let book = book_key
             .split(' ')
@@ -173,23 +183,38 @@ pub fn bible_verse(input: &str) -> Vec<String> {
             .collect::<Vec<_>>()
             .join(" ");
 
-        // Chapter & verse conversion
-        let chap = match word_to_number(chap_raw) {
-            Some(c) => c,
+        // chapter & verse parsing
+        let chap_raw = cap.get(3).unwrap().as_str().trim();
+        let verse_start_raw = cap.get(4).map(|m| m.as_str()).unwrap_or("").trim();
+        let verse_end_raw = cap.get(5).map(|m| m.as_str()).unwrap_or("").trim();
+
+        // parse chapter number or skip
+        let chap_n: usize = match word_to_number(chap_raw).and_then(|s| s.parse::<usize>().ok()) {
+            Some(n) => n,
             None => continue,
         };
-        let start = word_to_number(verse_start_raw).or_else(|| {
-            if verse_start_raw.is_empty() {
-                Some("1".to_string())
-            } else {
-                None
+
+        // parse start‐verse (default 1 if empty) or skip
+        let start_n: usize = if verse_start_raw.is_empty() {
+            1
+        } else {
+            match word_to_number(verse_start_raw).and_then(|s| s.parse::<usize>().ok()) {
+                Some(n) => n,
+                None => continue,
             }
-        });
+        };
 
-        let end = word_to_number(verse_end_raw);
+        // parse end‐verse if given
+        let end_n: Option<usize> = if verse_end_raw.is_empty() {
+            None
+        } else {
+            match word_to_number(verse_end_raw).and_then(|s| s.parse::<usize>().ok()) {
+                Some(n) => Some(n),
+                None => continue,
+            }
+        };
 
-        let chap_n: usize = chap.parse().unwrap();
-        let start_n: usize = start.expect("REASON: start_n").parse().unwrap();
+        // validate against the Bible
         let verses = match BIBLE_MAP.get(book.as_str()) {
             Some(v) => v,
             None => continue,
@@ -202,10 +227,9 @@ pub fn bible_verse(input: &str) -> Vec<String> {
         }
 
         let mut reference = format!("{book} {chap_n}:{start_n}");
-        if let Some(e) = end {
-            let end_n: usize = e.parse().unwrap();
-            if end_n >= start_n && end_n <= verses[chap_n - 1] {
-                reference = format!("{reference}-{end_n}");
+        if let Some(e) = end_n {
+            if e >= start_n && e <= verses[chap_n - 1] {
+                reference = format!("{reference}-{e}");
             }
         }
         results.push(reference);
@@ -251,45 +275,61 @@ pub mod word_to_num {
             ("eighty", 80),
             ("ninety", 90),
             ("hundred", 100),
-            ("hundred and", 100),
-            ("one hundred", 100),
-            ("one hundred and", 100),
         ]
         .iter()
         .cloned()
         .collect();
-
-        match nums.get(tok) {
-            Some(&num) => Ok(num),
-            None => Err("Invalid number word"),
-        }
+        nums.get(tok).cloned().ok_or("Invalid number word")
     }
 }
 
-/// Normalize ordinals like "first" → "1"
-fn normalize_ordinals(text: &str) -> String {
-    let mut s = text.to_string();
-    for (word, digit) in ORDINALS.iter() {
-        let re = Regex::new(&format!(r"(?i)\\b{word}\\b")).unwrap();
-        s = re.replace_all(&s, *digit).into_owned();
-    }
-
-    s
-}
-
-/// Convert word tokens to numbers, e.g. "twenty one" → "21"
 fn word_to_number(token: &str) -> Option<String> {
-    let tok = token.to_lowercase().replace('-', " ").trim().to_string();
-    if tok.is_empty() {
+    // 1) Normalize casing & hyphens, and bind to keep alive for the borrows below
+    let normalized = token.to_lowercase().replace('-', " ");
+    let parts: Vec<&str> = normalized
+        .split_whitespace()
+        .map(str::trim)
+        .filter(|w| !w.is_empty())
+        .collect();
+    if parts.is_empty() {
         return None;
     }
-    if let Ok(n) = tok.parse::<usize>() {
-        return Some(n.to_string());
+
+    // 2) If it's a raw digit, short-circuit
+    if parts.len() == 1 {
+        if let Ok(n) = parts[0].parse::<usize>() {
+            return Some(n.to_string());
+        }
     }
-    match word_to_num::parse(&tok) {
-        Ok(n) => Some(n.to_string()),
-        Err(_) => None,
+
+    // 3) Otherwise do a scale-aware parse:
+    //    total = the running grand total
+    //    current = the subtotal before hitting a scale (e.g. hundred)
+    //
+    let mut total = 0usize;
+    let mut current = 0usize;
+    for &w in &parts {
+        match word_to_num::parse(w) {
+            Ok(100) => {
+                // “hundred” multiplies the current (or 1 if none)
+                if current == 0 {
+                    current = 1;
+                }
+                current *= 100;
+            }
+            Ok(val) => {
+                // units/tens just add
+                current += val as usize;
+            }
+            Err(_) => {
+                // if any token fails, bail
+                return None;
+            }
+        }
     }
+    total += current;
+
+    Some(total.to_string())
 }
 
 /// Fuzzy-match a candidate book against BIBLE_MAP

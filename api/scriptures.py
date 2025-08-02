@@ -206,7 +206,6 @@ if __name__ == "__main__":
         "at genesis chapter two verses eight and nine",
         "as it says in john three verse sixteen",
         "the book of ezekiel chapter thirty three verse two",
-        "in psalm eighty three verse twelve",
         "going back to psalm one hundred five verse forty",
         "first corinthians thirteen verse four",
         "again in third john one verse two",
