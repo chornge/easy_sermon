@@ -1,5 +1,4 @@
 mod audio;
-mod devices;
 mod propresenter;
 mod scriptures;
 

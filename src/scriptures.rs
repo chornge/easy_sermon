@@ -156,7 +156,8 @@ pub fn bible_verse(input: &str) -> Vec<String> {
             if ord_num.unwrap_or(0) == 0 || ord_num.unwrap() > max_ord {
                 continue;
             }
-            format!("{} {}", ord_num.unwrap(), fb)
+            let ord = ord_num.unwrap();
+            format!("{ord} {fb}")
         } else {
             fb.clone()
         };
@@ -291,7 +292,7 @@ fn word_to_number(token: &str) -> Option<String> {
     }
 }
 
-/// Fuzzy-match a candidate book against BIBLE_STRUCTURE
+/// Fuzzy-match a candidate book against BIBLE_MAP
 fn fuzzy_book_match(candidate: &str) -> Option<String> {
     use fuzzy_matcher::skim::SkimMatcherV2;
     use fuzzy_matcher::FuzzyMatcher;
