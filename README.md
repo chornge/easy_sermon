@@ -45,15 +45,17 @@ cargo run --release
 Navigate to `http://localhost` on the browser. Allow microphone access (if the prompt pops up).
 
 ```
-"inside third john one verse two" -> [3 John 1:2]
-"as it says in john three verse sixteen" -> [John 3:16]
-"at genesis chapter two verses eight and nine" -> [Genesis 2:8-9]
-"first corinthians thirteen verse four" -> [1 Corinthians 13:4]
-"viewing psalm one hundred and five verse forty" -> [Psalm 105:40]
+"at genesis chapter two verses eight and nine" -> ['Genesis 2:8-9']
+"as it says in john three verse sixteen" -> ['John 3:16']
+"the book of ezekiel chapter thirty three verse two" -> ['Ezekiel 33:2']
+"going back to psalm one hundred five verse forty" -> ['Psalm 105:40']
+"first corinthians thirteen verse four" -> ['1 Corinthians 13:4']
+"again in third john one verse two" -> ['3 John 1:2']
+"open your bibles to revelations twenty two verse three" -> ['Revelation 22:3']
 ```
 
 ## Limitations
 
-• EasySermon struggles with `Nehemiah` and `Psalms 100-150`.
+• Struggles with `Nehemiah` and `Psalms`.
 
-• The word `"verse"` must be present for EasySermon to recognize a Bible verse.
+• The word `"verse"` must be present for the model to recognize a Bible verse.
