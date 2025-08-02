@@ -7,7 +7,7 @@ use tokio::net::TcpStream;
 pub async fn stage_display(verse: &str) -> Result<(), Box<dyn Error>> {
     let host = "localhost";
     let port = 54346;
-    let addr = format!("{}:{}", host, port);
+    let addr = format!("{host}:{port}");
 
     let request = json!({
         "url": "v1/stage/message",
@@ -25,6 +25,6 @@ pub async fn stage_display(verse: &str) -> Result<(), Box<dyn Error>> {
     stream.shutdown().await?;
 
     println!("✅ {verse} is on Stage Display");
-    
+
     Ok(())
 }
