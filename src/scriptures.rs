@@ -310,7 +310,7 @@ fn word_to_number(token: &str) -> Option<String> {
     let mut current = 0usize;
     for &w in &parts {
         match word_to_num::parse(w) {
-            Ok(val) if val == 100 => {
+            Ok(100) => {
                 // “hundred” multiplies the current (or 1 if none)
                 if current == 0 {
                     current = 1;

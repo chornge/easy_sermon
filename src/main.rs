@@ -50,7 +50,6 @@ async fn main() -> Result<()> {
         .arg("warning")
         .status()
         .expect("Failed to run api/main.py");
-
     if !api_server.success() {
         panic!("API server failed to start");
     }
