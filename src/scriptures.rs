@@ -334,8 +334,8 @@ fn word_to_number(token: &str) -> Option<String> {
 
 /// Fuzzy-match a candidate book against BIBLE_MAP
 fn fuzzy_book_match(candidate: &str) -> Option<String> {
-    use fuzzy_matcher::skim::SkimMatcherV2;
     use fuzzy_matcher::FuzzyMatcher;
+    use fuzzy_matcher::skim::SkimMatcherV2;
 
     let matcher = SkimMatcherV2::default();
     let mut best: Option<(&str, i64)> = None;

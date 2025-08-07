@@ -4,7 +4,7 @@ use reqwest::Client;
 use std::{
     error::Error,
     fs::{self, File},
-    io::{copy, Cursor, Write},
+    io::{Cursor, Write, copy},
     path::Path,
 };
 use zip::ZipArchive;

@@ -16,7 +16,7 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 - Python (`v3.10`)
 - Audio input device (microphone, etc)
 - FFMPEG (`brew install ffmpeg` on macOS)
-- [Vosk](https://github.com/alphacep/vosk-api) (`small`, `medium`, `large`, etc) - downloaded as part of build script.
+- [Vosk](https://alphacephei.com/vosk/models) (`small`, `lgraph`, `gigaspeech`, etc) - downloaded as part of build script (~4 GB).
 
 ## Usage
 
