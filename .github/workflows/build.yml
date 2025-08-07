@@ -29,7 +29,7 @@ jobs:
           profile: minimal
 
       - name: Unix Deps
-        run: sudo apt-get install -y libasound2-dev libavdevice-dev libavfilter-dev libavutil-dev # libsdl2-dev libavcodec-dev libavformat-dev
+        run: sudo apt-get update && sudo apt-get install -y libasound2-dev libavdevice-dev libavfilter-dev libavutil-dev # libsdl2-dev libavcodec-dev libavformat-dev
 
       - name: Python v3.10
         uses: actions/setup-python@v5
