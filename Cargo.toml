@@ -1,7 +1,7 @@
 [package]
 name = "easy_sermon"
 version = "2.1.1"
-edition = "2021"
+edition = "2024"
 authors = [
     "Christian Mbaba <mxlightningx@gmail.com>",
     "Dominion Chapel Houston <media@dominionchapel.org>",
