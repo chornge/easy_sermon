@@ -3,10 +3,7 @@ use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{SampleFormat, StreamConfig};
 use std::io::{self, Write};
 
-// use crate::reference::extract_bible_reference;
-// use std::error::Error;
-// use std::sync::{Arc, Mutex};
-// use vosk::{DecodingState, Model, Recognizer};
+// use crate::scriptures::bible_verse;
 
 fn fetch_devices() {
     let host = cpal::default_host();
@@ -55,6 +52,9 @@ pub fn speech_to_text() -> Result<(), Box<dyn std::error::Error>> {
         _ => return Err("Unsupported sample format".into()),
     };
 
+    // let model = Model::new("../models/vosk-model-en-us-0.42-gigaspeech").unwrap();
+    // let mut recognizer = Recognizer::new(&model, 16000.0).unwrap();
+
     stream.play()?;
 
     // Block until 'Enter' is pressed
@@ -63,7 +63,7 @@ pub fn speech_to_text() -> Result<(), Box<dyn std::error::Error>> {
 
     // Extract Bible reference
     // let text = "as we turn to john chapter three verse sixteen we see the love God has for us";
-    // let reference = extract_bible_reference(text);
+    // let reference = bible_verse(text);
     // println!("Input: {text:?}, Verse: {reference:?}");
 
     Ok(())
