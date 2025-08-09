@@ -64,8 +64,8 @@ def speech_to_text():
                 if verse not in verses:
                     verses.append(verse)
                     print("✅ Got:", verse)
-                    # asyncio.run(stage_display(verse))
+                    asyncio.run(stage_display(verse))
                 else:
                     verses.remove(verse)
                     verses.append(verse)
-                    # asyncio.run(stage_display(verse))
+                    asyncio.run(stage_display(verse))
