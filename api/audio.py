@@ -6,7 +6,7 @@ import sounddevice as sd
 
 from vosk import Model, KaldiRecognizer
 from api.scriptures import bible_verse
-from api.propresenter import stage_display
+from api.propresenter import bible_offline, stage_display
 
 # Global settings
 SAMPLE_RATE = 16000
@@ -23,8 +23,8 @@ audio_queue = queue.Queue()
 verses = []
 
 
-def speech_to_text():
-    def callback(indata, frames, time, status):
+def speech_to_text() -> None:
+    def callback(indata, frames, time, status) -> None:
         if status:
             print("", status, flush=True)
         audio_queue.put(bytes(indata))
@@ -64,8 +64,8 @@ def speech_to_text():
                 if verse not in verses:
                     verses.append(verse)
                     print("✅ Got:", verse)
-                    asyncio.run(stage_display(verse))
+                    asyncio.run(stage_display(bible_offline(verse)))
                 else:
                     verses.remove(verse)
                     verses.append(verse)
-                    asyncio.run(stage_display(verse))
+                    asyncio.run(stage_display(bible_offline(verse)))
