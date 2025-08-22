@@ -100,14 +100,38 @@ static BIBLE_MAP: Lazy<HashMap<&'static str, Vec<usize>>> = Lazy::new(|| {
     map
 });
 
+// static REF_RE: Lazy<Regex> = Lazy::new(|| {
+//     let books = BIBLE_MAP
+//         .keys()
+//         .map(|b| regex::escape(&b.to_lowercase()))
+//         .collect::<Vec<_>>()
+//         .join("|");
+//     let pat = format!(
+//         r"(?i)\b(?:(\d+)\s+)?({books})\s+(?:chapter\s+)?([\w\s-]+)\s+verses?\s+([\w\s-]+?)(?:\s*(?:-|–|—|to|through|and)\s+([\w\s-]+))?\b"
+//     );
+//     Regex::new(&pat).unwrap()
+// });
+
 static REF_RE: Lazy<Regex> = Lazy::new(|| {
     let books = BIBLE_MAP
         .keys()
         .map(|b| regex::escape(&b.to_lowercase()))
         .collect::<Vec<_>>()
         .join("|");
+
     let pat = format!(
-        r"(?i)\b(?:(\d+)\s+)?({books})\s+(?:chapter\s+)?([\w\s-]+)\s+verses?\s+([\w\s-]+?)(?:\s*(?:-|–|—|to|through|and)\s+([\w\s-]+))?\b"
+        r"(?ix)
+        \b
+        (?:(\d+)\s+)?                    # optional ordinal number (e.g. 1)
+        ({books})                       # book name
+        \s+(?:chapter\s+)?([\w\s-]+?)   # chapter
+        \s+(?:verses?|vs\.?|v\.?)\s+    # verses/verse/v./vs.
+        (
+            [\w\s-]+?                   # verse start (lazy)
+            (?=\s*(?:-|–|—|to|through|and)\s+|$) # lookahead for range or end
+        )
+        (?:\s*(?:-|–|—|to|through|and)\s+([\w\s-]+))? # optional verse end
+        \b"
     );
     Regex::new(&pat).unwrap()
 });
@@ -142,6 +166,7 @@ fn normalize_text(input: &str) -> String {
 }
 
 #[allow(dead_code)]
+#[allow(clippy::collapsible_if)]
 /// Extract a Bible verse from an input text
 pub fn bible_verse(input: &str) -> Vec<String> {
     let text = normalize_text(input);
@@ -283,6 +308,7 @@ pub mod word_to_num {
     }
 }
 
+#[allow(clippy::collapsible_if)]
 fn word_to_number(token: &str) -> Option<String> {
     // 1) Normalize casing & hyphens, and bind to keep alive for the borrows below
     let normalized = token.to_lowercase().replace('-', " ");
@@ -332,6 +358,7 @@ fn word_to_number(token: &str) -> Option<String> {
     Some(total.to_string())
 }
 
+#[allow(clippy::collapsible_if)]
 /// Fuzzy-match a candidate book against BIBLE_MAP
 fn fuzzy_book_match(candidate: &str) -> Option<String> {
     use fuzzy_matcher::FuzzyMatcher;

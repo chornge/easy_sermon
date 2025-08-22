@@ -62,7 +62,7 @@ pub fn speech_to_text() -> Result<(), Box<dyn std::error::Error>> {
     let _ = io::stdin().read_line(&mut input);
 
     // Extract Bible reference
-    // let text = "as we turn to john chapter three verse sixteen we see the love God has for us";
+    // let text = "for the hope we have in john three verse sixteen";
     // let reference = bible_verse(text);
     // println!("Input: {text:?}, Verse: {reference:?}");
 

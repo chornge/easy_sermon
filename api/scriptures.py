@@ -95,14 +95,17 @@ BOOK_PATTERN = r"|".join(sorted(map(re.escape, BOOKS), key=lambda x: -len(x)))
 REF_RE = re.compile(
     rf"""
     \b
-    (?:(\d+)\s+)?                                        # optional numeric ordinal
-    ({BOOK_PATTERN})                                     # book name
-    \s+(?:chapter\s+)?([\w\s\-]+?)                       # chapter
-    \s+verses?\s+
-      ([\w\s\-]+?)                                       # verse start
-      (?:\s*(?:-|–|—|to|through|and)\s+([\w\s\-]+?))?    # verse end
+    (?:(\d+)\s+)?                                # optional numeric ordinal
+    ({BOOK_PATTERN})                             # book name
+    \s+(?:chapter\s+)?([\w\s\-]+?)               # chapter
+    \s+(?:verses?|vs\.?|v\.?)\s+                 # verse(s)
+    (
+        [\w\s\-]+?                               # verse start (lazy)
+        (?=\s*(?:-|–|—|to|through|and)\s+|$)     # lookahead for range separator or end
+    )
+    (?:\s*(?:-|–|—|to|through|and)\s+([\w\s\-]+))?  # optional verse end
     \b
-""",
+    """,
     re.IGNORECASE | re.VERBOSE,
 )
 
@@ -141,7 +144,7 @@ def normalize_text(text: str) -> str:
     )
 
 
-def bible_verse(text: str):
+def bible_verse(text: str) -> list[str]:
     text = normalize_text(text)
     results = []
     for ord_raw, book_raw, chap_raw, verse_start_raw, verse_end_raw in REF_RE.findall(
@@ -203,13 +206,16 @@ def bible_verse(text: str):
 
 if __name__ == "__main__":
     samples = [
-        "at genesis chapter two verses eight and nine",
-        "as it says in john three verse sixteen",
-        "the book of ezekiel chapter thirty three verse two",
-        "going back to psalm one hundred five verse forty",
-        "first corinthians thirteen verse four",
-        "again in third john one verse two",
-        "open your bibles to revelations twenty two verse three",
+        "for the hope we have in john three verse sixteen",
+        "keeping in mind the consequences in romans six verse twenty three",
+        "nothing compares to the grace in ephesians two verse eight",
+        "showing how near salvation is in romans ten verse nine",
+        "finding true life in john fourteen verse six",
+        "and our identity in galatians two verse twenty",
+        "we are never too far gone in first john one verse nine",
+        "for we celebrate a fresh start in second corinthians five verse seventeen",
+        "finding the blueprint for peace in philippians four verses six and seven",
+        "while going about the great commision in matthew twenty eight verse nineteen through twenty",
     ]
 
     for line in samples:

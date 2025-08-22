@@ -27,13 +27,16 @@ async fn main() -> Result<()> {
     // }
 
     // for &line in &[
-    //     "at genesis chapter two verses eight and nine",
-    //     "as it says in john three verse sixteen",
-    //     "the book of ezekiel chapter thirty three verse two",
-    //     "going back to psalm one hundred five verse forty",
-    //     "first corinthians thirteen verse four",
-    //     "again in third john one verse two",
-    //     "open your bibles to revelations twenty two verse three",
+    //     "for the hope we have in john three verse sixteen",
+    //     "keeping in mind the consequences in romans six verse twenty three",
+    //     "nothing compares to the grace in ephesians two verse eight",
+    //     "showing how near salvation is in romans ten verse nine",
+    //     "finding true life in john fourteen verse six",
+    //     "and our identity in galatians two verse twenty",
+    //     "we are never too far gone in first john one verse nine",
+    //     "for we celebrate a fresh start in second corinthians five verse seventeen",
+    //     "finding the blueprint for peace in philippians four verses six and seven",
+    //     "while going about the great commision in matthew twenty eight verse nineteen through twenty",
     // ] {
     //     let reference = bible_verse(line);
     //     println!("🔍 Audio: {line} \n✅ Got: {reference:?} \n");
@@ -55,7 +58,7 @@ async fn main() -> Result<()> {
     }
 
     // Send message to stage display
-    // let _ = stage_display("Genesis 1:2-9").await;
+    // let _ = stage_display("John 3:16").await;
 
     Ok(())
 }
