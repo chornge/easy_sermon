@@ -144,7 +144,7 @@ def normalize_text(text: str) -> str:
     )
 
 
-def bible_verse(text: str):
+def bible_verse(text: str) -> list[str]:
     text = normalize_text(text)
     results = []
     for ord_raw, book_raw, chap_raw, verse_start_raw, verse_end_raw in REF_RE.findall(
