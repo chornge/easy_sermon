@@ -36,7 +36,7 @@ async fn main() -> Result<()> {
     //     "we are never too far gone in first john one verse nine",
     //     "for we celebrate a fresh start in second corinthians five verse seventeen",
     //     "finding the blueprint for peace in philippians four verses six and seven",
-    //     "while going about the great commision in matthew twenty eight verse nineteen through twenty",
+    //     "while on the great commission in matthew twenty eight verse nineteen through twenty",
     // ] {
     //     let reference = bible_verse(line);
     //     println!("🔍 Audio: {line} \n✅ Got: {reference:?} \n");

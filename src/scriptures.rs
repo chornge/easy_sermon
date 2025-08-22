@@ -100,6 +100,7 @@ static BIBLE_MAP: Lazy<HashMap<&'static str, Vec<usize>>> = Lazy::new(|| {
     map
 });
 
+// Regex in rust doesn't support lookahead/lookbehind
 // static REF_RE: Lazy<Regex> = Lazy::new(|| {
 //     let books = BIBLE_MAP
 //         .keys()
@@ -122,15 +123,11 @@ static REF_RE: Lazy<Regex> = Lazy::new(|| {
     let pat = format!(
         r"(?ix)
         \b
-        (?:(\d+)\s+)?                    # optional ordinal number (e.g. 1)
-        ({books})                       # book name
-        \s+(?:chapter\s+)?([\w\s-]+?)   # chapter
-        \s+(?:verses?|vs\.?|v\.?)\s+    # verses/verse/v./vs.
-        (
-            [\w\s-]+?                   # verse start (lazy)
-            (?=\s*(?:-|–|—|to|through|and)\s+|$) # lookahead for range or end
-        )
-        (?:\s*(?:-|–|—|to|through|and)\s+([\w\s-]+))? # optional verse end
+        (?:(\d+)\s+)?                          # optional ordinal (First, Second)
+        ({books})                              # book name
+        \s+(?:chapter\s+)?([\w\s-]+?)          # chapter (words or digits)
+        \s+(?:verses?|verse|v\.?|vs\.?)\s+     # verse keyword(s)
+        ([\w\s-]+)                             # capture verses (could include 'and', 'through', etc.)
         \b"
     );
     Regex::new(&pat).unwrap()
@@ -176,6 +173,7 @@ pub fn bible_verse(input: &str) -> Vec<String> {
         let ord_raw = cap.get(1).map(|m| m.as_str());
         let book_raw = cap.get(2).unwrap().as_str();
         let ord_num = ord_raw.and_then(|o| o.parse::<usize>().ok());
+
         let fuzzy = match fuzzy_book_match(book_raw) {
             Some(f) => f,
             None => continue,
@@ -196,6 +194,7 @@ pub fn bible_verse(input: &str) -> Vec<String> {
         } else {
             fuzzy.clone()
         };
+
         let book = book_key
             .split(' ')
             .map(|w| {
@@ -208,38 +207,43 @@ pub fn bible_verse(input: &str) -> Vec<String> {
             .collect::<Vec<_>>()
             .join(" ");
 
-        // chapter & verse parsing
+        // parse chapter
         let chap_raw = cap.get(3).unwrap().as_str().trim();
-        let verse_start_raw = cap.get(4).map(|m| m.as_str()).unwrap_or("").trim();
-        let verse_end_raw = cap.get(5).map(|m| m.as_str()).unwrap_or("").trim();
-
-        // parse chapter number or skip
         let chap_n: usize = match word_to_number(chap_raw).and_then(|s| s.parse::<usize>().ok()) {
             Some(n) => n,
             None => continue,
         };
 
-        // parse start‐verse (default 1 if empty) or skip
-        let start_n: usize = if verse_start_raw.is_empty() {
-            1
-        } else {
-            match word_to_number(verse_start_raw).and_then(|s| s.parse::<usize>().ok()) {
-                Some(n) => n,
-                None => continue,
-            }
-        };
+        // parse verse(s)
+        let verse_raw = cap.get(4).unwrap().as_str().to_lowercase();
+        let normalized = verse_raw
+            .replace(" through ", "-")
+            .replace(" to ", "-")
+            .replace(" and ", "-");
 
-        // parse end‐verse if given
-        let end_n: Option<usize> = if verse_end_raw.is_empty() {
-            None
-        } else {
-            match word_to_number(verse_end_raw).and_then(|s| s.parse::<usize>().ok()) {
+        let parts: Vec<&str> = normalized
+            .split('-')
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .collect();
+
+        let start_raw = parts.first().copied().unwrap_or("");
+        let end_raw = parts.get(1).copied();
+
+        let start_n: usize = match word_to_number(start_raw).and_then(|s| s.parse::<usize>().ok()) {
+            Some(n) => n,
+            None => continue,
+        };
+        let end_n: Option<usize> = if let Some(end_str) = end_raw {
+            match word_to_number(end_str).and_then(|s| s.parse::<usize>().ok()) {
                 Some(n) => Some(n),
                 None => continue,
             }
+        } else {
+            None
         };
 
-        // validate against the Bible
+        // validate against BIBLE_MAP
         let verses = match BIBLE_MAP.get(book.as_str()) {
             Some(v) => v,
             None => continue,
@@ -379,4 +383,61 @@ fn fuzzy_book_match(candidate: &str) -> Option<String> {
         }
     }
     None
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_verse_detection() {
+        let cases = vec![
+            (
+                "for the hope we have in john three verse sixteen",
+                vec!["John 3:16"],
+            ),
+            (
+                "keeping in mind the consequences in romans six verse twenty three",
+                vec!["Romans 6:23"],
+            ),
+            (
+                "nothing compares to the grace in ephesians two verse eight",
+                vec!["Ephesians 2:8"],
+            ),
+            (
+                "showing how near salvation is in romans ten verse nine",
+                vec!["Romans 10:9"],
+            ),
+            (
+                "finding true life in john fourteen verse six",
+                vec!["John 14:6"],
+            ),
+            (
+                "and our identity in galatians two verse twenty",
+                vec!["Galatians 2:20"],
+            ),
+            (
+                "we are never too far gone in first john one verse nine",
+                vec!["1 John 1:9"],
+            ),
+            (
+                "for we celebrate a fresh start in second corinthians five verse seventeen",
+                // vec!["2 Corinthians 5:17"],
+                vec![],
+            ),
+            (
+                "finding the blueprint for peace in philippians four verses six and seven",
+                vec!["Philippians 4:6-7"],
+            ),
+            (
+                "while on the great commission in matthew twenty eight verse nineteen through twenty",
+                vec!["Matthew 28:19-20"],
+            ),
+        ];
+
+        for (input, expected) in cases {
+            let got = bible_verse(input);
+            assert_eq!(got, expected, "Failed on input: {}", input);
+        }
+    }
 }

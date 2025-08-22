@@ -27,7 +27,7 @@ def load_bible(path: str) -> dict:
 BIBLE_TEXT = load_bible("american_kjv.json")
 
 
-# def bible_offline(reference: str) -> str:  # Displays a single verse
+# def bible_offline(reference: str) -> str:  # Displays only a single verse
 #     try:
 #         # Split input like "John 3:16"
 #         book, chapter_verse = reference.rsplit(" ", 1)
@@ -40,7 +40,7 @@ BIBLE_TEXT = load_bible("american_kjv.json")
 #         return f"Verse not found: {reference}"
 
 
-def bible_offline(reference: str) -> str:  # Displays a range of verses (if needed)
+def bible_offline(reference: str) -> str:  # Displays a range of verses
     try:
         book, chapter_verse = reference.rsplit(" ", 1)
         if "-" in chapter_verse:
