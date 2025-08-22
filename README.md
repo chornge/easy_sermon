@@ -45,13 +45,16 @@ cargo run --release
 Navigate to `http://localhost` on the browser. Allow microphone access (if the prompt pops up).
 
 ```
-"at genesis chapter two verses eight and nine" -> ['Genesis 2:8-9']
-"as it says in john three verse sixteen" -> ['John 3:16']
-"the book of ezekiel chapter thirty three verse two" -> ['Ezekiel 33:2']
-"going back to psalm one hundred five verse forty" -> ['Psalm 105:40']
-"first corinthians thirteen verse four" -> ['1 Corinthians 13:4']
-"again in third john one verse two" -> ['3 John 1:2']
-"open your bibles to revelations twenty two verse three" -> ['Revelation 22:3']
+"for the hope we have in john three verse sixteen" -> ['John 3:16']
+"keeping in mind the consequences in romans six verse twenty three" -> ['Romans 6:23']
+"nothing compares to the grace in ephesians two verse eight" -> ['Ephesians 2:8']
+"showing how near salvation is in romans ten verse nine" -> ['Romans 10:9']
+"finding true life in john fourteen verse six" -> ['John 14:6']
+"and our identity in galatians two verse twenty" -> ['Galatians 2:20']
+"we are never too far gone in first john one verse nine" -> ['1 John 1:9']
+"for we celebrate a fresh start in second corinthians five verse seventeen" -> ['2 Corinthians 5:17']
+"finding the blueprint for peace in philippians four verses six and seven" -> ['Philippians 4:6-7']
+"while going about the great commision in matthew twenty eight verse nineteen through twenty" -> ['Matthew 28:19-20']
 ```
 
 ## Limitations
