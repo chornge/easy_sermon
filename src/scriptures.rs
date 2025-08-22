@@ -100,14 +100,38 @@ static BIBLE_MAP: Lazy<HashMap<&'static str, Vec<usize>>> = Lazy::new(|| {
     map
 });
 
+// static REF_RE: Lazy<Regex> = Lazy::new(|| {
+//     let books = BIBLE_MAP
+//         .keys()
+//         .map(|b| regex::escape(&b.to_lowercase()))
+//         .collect::<Vec<_>>()
+//         .join("|");
+//     let pat = format!(
+//         r"(?i)\b(?:(\d+)\s+)?({books})\s+(?:chapter\s+)?([\w\s-]+)\s+verses?\s+([\w\s-]+?)(?:\s*(?:-|–|—|to|through|and)\s+([\w\s-]+))?\b"
+//     );
+//     Regex::new(&pat).unwrap()
+// });
+
 static REF_RE: Lazy<Regex> = Lazy::new(|| {
     let books = BIBLE_MAP
         .keys()
         .map(|b| regex::escape(&b.to_lowercase()))
         .collect::<Vec<_>>()
         .join("|");
+
     let pat = format!(
-        r"(?i)\b(?:(\d+)\s+)?({books})\s+(?:chapter\s+)?([\w\s-]+)\s+verses?\s+([\w\s-]+?)(?:\s*(?:-|–|—|to|through|and)\s+([\w\s-]+))?\b"
+        r"(?ix)
+        \b
+        (?:(\d+)\s+)?                    # optional ordinal number (e.g. 1)
+        ({books})                       # book name
+        \s+(?:chapter\s+)?([\w\s-]+?)   # chapter
+        \s+(?:verses?|vs\.?|v\.?)\s+    # verses/verse/v./vs.
+        (
+            [\w\s-]+?                   # verse start (lazy)
+            (?=\s*(?:-|–|—|to|through|and)\s+|$) # lookahead for range or end
+        )
+        (?:\s*(?:-|–|—|to|through|and)\s+([\w\s-]+))? # optional verse end
+        \b"
     );
     Regex::new(&pat).unwrap()
 });

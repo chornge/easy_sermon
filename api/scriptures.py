@@ -95,14 +95,17 @@ BOOK_PATTERN = r"|".join(sorted(map(re.escape, BOOKS), key=lambda x: -len(x)))
 REF_RE = re.compile(
     rf"""
     \b
-    (?:(\d+)\s+)?                                        # optional numeric ordinal
-    ({BOOK_PATTERN})                                     # book name
-    \s+(?:chapter\s+)?([\w\s\-]+?)                       # chapter
-    \s+verses?\s+
-      ([\w\s\-]+?)                                       # verse start
-      (?:\s*(?:-|–|—|to|through|and)\s+([\w\s\-]+?))?    # verse end
+    (?:(\d+)\s+)?                                # optional numeric ordinal
+    ({BOOK_PATTERN})                             # book name
+    \s+(?:chapter\s+)?([\w\s\-]+?)               # chapter
+    \s+(?:verses?|vs\.?|v\.?)\s+                 # verse(s)
+    (
+        [\w\s\-]+?                               # verse start (lazy)
+        (?=\s*(?:-|–|—|to|through|and)\s+|$)     # lookahead for range separator or end
+    )
+    (?:\s*(?:-|–|—|to|through|and)\s+([\w\s\-]+))?  # optional verse end
     \b
-""",
+    """,
     re.IGNORECASE | re.VERBOSE,
 )
 
