@@ -227,7 +227,7 @@ pub fn bible_verse(input: &str) -> Vec<String> {
             .filter(|s| !s.is_empty())
             .collect();
 
-        let start_raw = parts.get(0).copied().unwrap_or("");
+        let start_raw = parts.first().copied().unwrap_or("");
         let end_raw = parts.get(1).copied();
 
         let start_n: usize = match word_to_number(start_raw).and_then(|s| s.parse::<usize>().ok()) {
