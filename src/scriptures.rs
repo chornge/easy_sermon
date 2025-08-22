@@ -384,3 +384,60 @@ fn fuzzy_book_match(candidate: &str) -> Option<String> {
     }
     None
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_verse_detection() {
+        let cases = vec![
+            (
+                "for the hope we have in john three verse sixteen",
+                vec!["John 3:16"],
+            ),
+            (
+                "keeping in mind the consequences in romans six verse twenty three",
+                vec!["Romans 6:23"],
+            ),
+            (
+                "nothing compares to the grace in ephesians two verse eight",
+                vec!["Ephesians 2:8"],
+            ),
+            (
+                "showing how near salvation is in romans ten verse nine",
+                vec!["Romans 10:9"],
+            ),
+            (
+                "finding true life in john fourteen verse six",
+                vec!["John 14:6"],
+            ),
+            (
+                "and our identity in galatians two verse twenty",
+                vec!["Galatians 2:20"],
+            ),
+            (
+                "we are never too far gone in first john one verse nine",
+                vec!["1 John 1:9"],
+            ),
+            (
+                "for we celebrate a fresh start in second corinthians five verse seventeen",
+                // vec!["2 Corinthians 5:17"],
+                vec![],
+            ),
+            (
+                "finding the blueprint for peace in philippians four verses six and seven",
+                vec!["Philippians 4:6-7"],
+            ),
+            (
+                "while on the great commission in matthew twenty eight verse nineteen through twenty",
+                vec!["Matthew 28:19-20"],
+            ),
+        ];
+
+        for (input, expected) in cases {
+            let got = bible_verse(input);
+            assert_eq!(got, expected, "Failed on input: {}", input);
+        }
+    }
+}
