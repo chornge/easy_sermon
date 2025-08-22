@@ -54,7 +54,7 @@ Navigate to `http://localhost` on the browser. Allow microphone access (if the p
 "we are never too far gone in first john one verse nine" -> ['1 John 1:9']
 "for we celebrate a fresh start in second corinthians five verse seventeen" -> ['2 Corinthians 5:17']
 "finding the blueprint for peace in philippians four verses six and seven" -> ['Philippians 4:6-7']
-"while going about the great commision in matthew twenty eight verse nineteen through twenty" -> ['Matthew 28:19-20']
+"while on the great commission in matthew twenty eight verse nineteen through twenty" -> ['Matthew 28:19-20']
 ```
 
 ## Limitations
