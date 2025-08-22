@@ -166,6 +166,7 @@ fn normalize_text(input: &str) -> String {
 }
 
 #[allow(dead_code)]
+#[allow(clippy::collapsible_if)]
 /// Extract a Bible verse from an input text
 pub fn bible_verse(input: &str) -> Vec<String> {
     let text = normalize_text(input);
@@ -307,6 +308,7 @@ pub mod word_to_num {
     }
 }
 
+#[allow(clippy::collapsible_if)]
 fn word_to_number(token: &str) -> Option<String> {
     // 1) Normalize casing & hyphens, and bind to keep alive for the borrows below
     let normalized = token.to_lowercase().replace('-', " ");
@@ -356,6 +358,7 @@ fn word_to_number(token: &str) -> Option<String> {
     Some(total.to_string())
 }
 
+#[allow(clippy::collapsible_if)]
 /// Fuzzy-match a candidate book against BIBLE_MAP
 fn fuzzy_book_match(candidate: &str) -> Option<String> {
     use fuzzy_matcher::FuzzyMatcher;
