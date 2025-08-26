@@ -1,148 +1,122 @@
 use anyhow::Result;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{SampleFormat, StreamConfig};
-use std::io::{self, Write};
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Duration;
+use vosk::{DecodingState, Model, Recognizer};
 
-// use crate::scriptures::bible_verse;
+use crate::scriptures::bible_verse;
 
-fn fetch_devices() {
-    let host = cpal::default_host();
-    let devices = match host.devices() {
-        Ok(d) => d,
+fn process_result(json_str: &str, verses: &Arc<Mutex<Vec<String>>>) {
+    let v: serde_json::Value = match serde_json::from_str(json_str) {
+        Ok(val) => val,
         Err(e) => {
-            eprintln!("Error getting devices: {e}");
+            eprintln!("JSON parse error: {}", e);
             return;
         }
     };
 
-    for (i, device) in devices.enumerate() {
-        let name = device.name().unwrap_or_else(|_| "Unknown".to_string());
+    // Extract recognized text from "text" or "partial" fields
+    let text = v
+        .get("text")
+        .or_else(|| v.get("partial"))
+        .and_then(|val| val.as_str())
+        .unwrap_or("")
+        .trim()
+        .to_lowercase();
 
-        let supported_configs = device.supported_input_configs();
-        let is_input = supported_configs.is_ok_and(|mut sc| sc.next().is_some());
+    if text.is_empty() {
+        return;
+    }
 
-        println!(
-            "{}: {} ({})",
-            i,
-            name,
-            if is_input { "Input ✅" } else { "Output 🛑" }
-        );
+    // Filter out noise words
+    if text == "the" || text.is_empty() {
+        return;
+    }
+
+    println!("🔍 Transcript: {}", text);
+
+    // Check for Bible verses, assuming bible_verse is your crate function returning Vec<String>
+    for verse in bible_verse(&text) {
+        let mut locked_verses = verses.lock().unwrap();
+        if !locked_verses.contains(&verse) {
+            locked_verses.push(verse.clone());
+            println!("✅ Got: {}", verse);
+        } else {
+            // Move to end to refresh
+            locked_verses.retain(|v| v != &verse);
+            locked_verses.push(verse.clone());
+        }
     }
 }
 
 #[allow(dead_code)]
-pub fn speech_to_text() -> Result<(), Box<dyn std::error::Error>> {
-    fetch_devices();
+pub fn speech_to_text() -> Result<()> {
+    const SAMPLE_RATE: f32 = 16000.0;
+    const MODEL_PATH: &str = "models/vosk-model-en-us-0.42-gigaspeech";
 
-    let host = cpal::default_host();
-    let device = host
-        .default_input_device()
-        .expect("No input devices available");
+    let model = Model::new(MODEL_PATH)
+        .ok_or_else(|| anyhow::anyhow!("Model not found or failed to load"))?;
+    let recognizer = Recognizer::new(&model, SAMPLE_RATE)
+        .ok_or_else(|| anyhow::anyhow!("Failed to create Recognizer"))?;
+    let recognizer = Arc::new(Mutex::new(recognizer));
 
-    println!("Using: {}", device.name()?);
+    let (tx, rx) = crossbeam_channel::unbounded::<Vec<i16>>();
+    let verses = Arc::new(Mutex::new(Vec::<String>::new()));
 
-    let cfg = device.default_input_config()?;
-    let cfg: StreamConfig = cfg.into();
-    println!("Default input config: {cfg:?}");
+    {
+        let tx = tx.clone();
+        thread::spawn(move || {
+            let host = cpal::default_host();
+            let device = host.default_input_device().expect("No input device found");
+            let config = device
+                .default_input_config()
+                .expect("No default input config");
 
-    let stream = match device.default_input_config()?.sample_format() {
-        SampleFormat::F32 => build_stream_f32(&device, &cfg)?,
-        SampleFormat::I16 => build_stream_i16(&device, &cfg)?,
-        SampleFormat::U16 => build_stream_u16(&device, &cfg)?,
-        _ => return Err("Unsupported sample format".into()),
-    };
+            let stream = device
+                .build_input_stream(
+                    &config.clone().into(),
+                    move |data: &[i16], _| {
+                        tx.send(data.to_vec()).unwrap();
+                    },
+                    |err| eprintln!("Stream error: {err}"),
+                    None,
+                )
+                .unwrap();
 
-    // let model = Model::new("../models/vosk-model-en-us-0.42-gigaspeech").unwrap();
-    // let mut recognizer = Recognizer::new(&model, 16000.0).unwrap();
+            stream.play().unwrap();
 
-    stream.play()?;
+            loop {
+                thread::sleep(Duration::from_secs(1));
+            }
+        });
+    }
 
-    // Block until 'Enter' is pressed
-    let mut input = String::new();
-    let _ = io::stdin().read_line(&mut input);
+    println!("🎙️ Ready to listen...");
 
-    // Extract Bible reference
-    // let text = "for the hope we have in john three verse sixteen";
-    // let reference = bible_verse(text);
-    // println!("Input: {text:?}, Verse: {reference:?}");
+    for buffer in rx.iter() {
+        let mut rec = recognizer.lock().unwrap();
+        match rec.accept_waveform(&buffer) {
+            Ok(state) => match state {
+                DecodingState::Finalized => {
+                    let result = rec.result();
+                    let json_str = serde_json::to_string(&result).unwrap();
+                    process_result(&json_str, &verses);
+                }
+                DecodingState::Running => {
+                    let partial = rec.partial_result();
+                    let json_str = serde_json::to_string(&partial).unwrap();
+                    process_result(&json_str, &verses);
+                }
+                DecodingState::Failed => {
+                    eprintln!("Decoding failed");
+                }
+            },
+            Err(e) => {
+                eprintln!("accept_waveform error: {:?}", e);
+            }
+        }
+    }
 
     Ok(())
-}
-
-fn build_stream_f32(
-    device: &cpal::Device,
-    cfg: &StreamConfig,
-) -> Result<cpal::Stream, Box<dyn std::error::Error>> {
-    let channels = cfg.channels as usize;
-    let err_fn = |e| eprintln!("Stream error: {e}");
-
-    let stream = device.build_input_stream(
-        cfg,
-        move |data: &[f32], _: &cpal::InputCallbackInfo| {
-            let avg: f32 = data
-                .chunks(channels)
-                .map(|frame| frame[0].abs())
-                .sum::<f32>()
-                / (data.len() / channels).max(1) as f32;
-            print!("\rMic Level: {avg:.4}");
-            io::stdout().flush().unwrap();
-        },
-        err_fn,
-        None,
-    )?;
-
-    Ok(stream)
-}
-
-fn build_stream_i16(
-    device: &cpal::Device,
-    cfg: &StreamConfig,
-) -> Result<cpal::Stream, Box<dyn std::error::Error>> {
-    let channels = cfg.channels as usize;
-    let err_fn = |e| eprintln!("Stream error: {e}");
-
-    let stream = device.build_input_stream(
-        cfg,
-        move |data: &[i16], _: &cpal::InputCallbackInfo| {
-            let avg: f32 = data
-                .chunks(channels)
-                .map(|frame| (frame[0] as f32 / i16::MAX as f32).abs())
-                .sum::<f32>()
-                / (data.len() / channels).max(1) as f32;
-            print!("\rMic Level: {avg:.4}");
-            io::stdout().flush().unwrap();
-        },
-        err_fn,
-        None,
-    )?;
-
-    Ok(stream)
-}
-
-fn build_stream_u16(
-    device: &cpal::Device,
-    cfg: &StreamConfig,
-) -> Result<cpal::Stream, Box<dyn std::error::Error>> {
-    let channels = cfg.channels as usize;
-    let err_fn = |e| eprintln!("Stream error: {e}");
-
-    let stream = device.build_input_stream(
-        cfg,
-        move |data: &[u16], _: &cpal::InputCallbackInfo| {
-            let avg: f32 = data
-                .chunks(channels)
-                .map(|frame| {
-                    let s = frame[0] as f32 / u16::MAX as f32;
-                    (s * 2.0 - 1.0).abs()
-                })
-                .sum::<f32>()
-                / (data.len() / channels).max(1) as f32;
-            print!("\rMic Level: {avg:.4}");
-            io::stdout().flush().unwrap();
-        },
-        err_fn,
-        None,
-    )?;
-
-    Ok(stream)
 }
