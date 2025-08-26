@@ -5,8 +5,11 @@ use std::collections::HashMap;
 static ORDINALS: Lazy<HashMap<&'static str, &'static str>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert("first", "1");
+    m.insert("1st", "1");
     m.insert("second", "2");
+    m.insert("2nd", "2");
     m.insert("third", "3");
+    m.insert("3rd", "3");
     m
 });
 
