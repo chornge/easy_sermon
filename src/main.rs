@@ -1,10 +1,11 @@
-// mod audio;
+mod audio;
 mod propresenter;
 mod scriptures;
 
 use anyhow::Result;
 use dotenv::dotenv;
-use std::{env, process::Command};
+use std::env;
+use std::process::Command;
 
 // use crate::audio::speech_to_text;
 // use crate::propresenter::stage_display;
