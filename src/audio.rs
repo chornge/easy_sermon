@@ -36,7 +36,6 @@ fn process_result(json_str: &str, verses: &Arc<Mutex<Vec<String>>>) {
 
     println!("🔍 Transcript: {}", text);
 
-    // Check for Bible verses, assuming bible_verse is your crate function returning Vec<String>
     for verse in bible_verse(&text) {
         let mut locked_verses = verses.lock().unwrap();
         if !locked_verses.contains(&verse) {

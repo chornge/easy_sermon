@@ -1,26 +1,23 @@
-use tokio::io::AsyncWriteExt;
-use tokio::net::TcpStream;
-
 use anyhow::Result;
 use serde::Deserialize;
 use std::{collections::HashMap, fs};
-
-#[derive(Debug, Deserialize)]
-struct Verse {
-    verse: u32,
-    text: String,
-}
-
-#[derive(Debug, Deserialize)]
-struct Chapter {
-    chapter: u32,
-    verses: Vec<Verse>,
-}
+use tokio::io::AsyncWriteExt;
+use tokio::net::TcpStream;
 
 #[derive(Debug, Deserialize)]
 struct Book {
     name: String,
     chapters: Vec<Chapter>,
+}
+#[derive(Debug, Deserialize)]
+struct Chapter {
+    chapter: u32,
+    verses: Vec<Verse>,
+}
+#[derive(Debug, Deserialize)]
+struct Verse {
+    verse: u32,
+    text: String,
 }
 
 #[derive(Debug, Deserialize)]
