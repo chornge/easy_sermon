@@ -1,4 +1,4 @@
-mod audio;
+// mod audio;
 mod propresenter;
 mod scriptures;
 
@@ -26,22 +26,6 @@ async fn main() -> Result<()> {
     //     );
     // }
 
-    // for &line in &[
-    //     "for the hope we have in john three verse sixteen",
-    //     "keeping in mind the consequences in romans six verse twenty three",
-    //     "nothing compares to the grace in ephesians two verse eight",
-    //     "showing how near salvation is in romans ten verse nine",
-    //     "finding true life in john fourteen verse six",
-    //     "and our identity in galatians two verse twenty",
-    //     "we are never too far gone in first john one verse nine",
-    //     "for we celebrate a fresh start in second corinthians five verse seventeen",
-    //     "finding the blueprint for peace in philippians four verses six and seven",
-    //     "while on the great commission in matthew twenty eight verse nineteen through twenty",
-    // ] {
-    //     let reference = bible_verse(line);
-    //     println!("🔍 Audio: {line} \n✅ Got: {reference:?} \n");
-    // }
-
     // Start API server
     let api_server = Command::new("uvicorn")
         .arg("api.main:app")
@@ -57,8 +41,26 @@ async fn main() -> Result<()> {
         panic!("API server failed to start");
     }
 
-    // Send message to stage display
-    // let _ = stage_display("John 3:16").await;
+    // for &line in &[
+    //     "for the hope we have in john three verse sixteen",
+    //     "keeping in mind the consequences in romans six verse twenty three",
+    //     "nothing compares to the grace in ephesians two verse eight",
+    //     "showing how near salvation is in romans ten verse nine",
+    //     "finding true life in john fourteen verse six",
+    //     "and our identity in galatians two verse twenty",
+    //     "we are never too far gone in first john one verse nine",
+    //     "for we celebrate a fresh start in second corinthians five verse seventeen",
+    //     "finding the blueprint for peace in philippians four verses six and seven",
+    //     "while on the great commission in matthew twenty eight verse nineteen through twenty",
+    // ] {
+    //     let reference = bible_verse(line);
+    //     println!("\n🔍 Audio: {line} \n✅ Got: {reference:?}");
+
+    //     // Send verse(s) to Stage Display
+    //     for verse in &reference {
+    //         let _ = stage_display(verse).await;
+    //     }
+    // }
 
     Ok(())
 }

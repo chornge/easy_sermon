@@ -24,23 +24,10 @@ def load_bible(path: str) -> dict:
     return bible
 
 
-BIBLE_TEXT = load_bible("american_kjv.json")
+BIBLE_TEXT = load_bible("translations/akjv/akjv.json")
 
 
-# def bible_offline(reference: str) -> str:  # Displays only a single verse
-#     try:
-#         # Split input like "John 3:16"
-#         book, chapter_verse = reference.rsplit(" ", 1)
-#         chapter, verse = chapter_verse.split(":")
-
-#         verse_text = BIBLE_TEXT[book][chapter][verse]
-#         print(f"{reference} — {verse_text}")
-#         return f"{reference} — {verse_text}"
-#     except Exception as e:
-#         return f"Verse not found: {reference}"
-
-
-def bible_offline(reference: str) -> str:  # Displays a range of verses
+def bible_offline(reference: str) -> str:
     try:
         book, chapter_verse = reference.rsplit(" ", 1)
         if "-" in chapter_verse:

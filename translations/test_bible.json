@@ -1,0 +1,18 @@
+
+        {
+          "books": [
+            {
+              "name": "John",
+              "chapters": [
+                {
+                  "chapter": 3,
+                  "verses": [
+                    { "verse": 16, "text": "For God so loved the world." },
+                    { "verse": 17, "text": "For God did not send his Son to condemn." }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+        

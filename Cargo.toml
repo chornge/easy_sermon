@@ -12,6 +12,7 @@ description = "Recognize spoken Bible verses in any audio stream"
 [dependencies]
 anyhow = "1.0.98"
 cpal = "0.16.0"
+crossbeam-channel = "0.5"
 dotenv = "0.15.0"
 fuzzy-matcher = "0.3.7"
 hashbrown = "0.15.4"

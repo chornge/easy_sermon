@@ -61,4 +61,4 @@ Navigate to `http://localhost` on the browser. Allow microphone access (if the p
 
 • Struggles with `Nehemiah` and `Psalms`.
 
-• The word `"verse"` must be present for the model to recognize a Bible verse.
+• The word `"verse"` must be present for accurate Bible verse extraction.
