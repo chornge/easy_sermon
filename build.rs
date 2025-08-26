@@ -27,8 +27,8 @@ async fn main() {
         MODEL_FULL_PATH.as_str()
     );
 
-    println!("cargo:rustc-link-search=native=./native");
-    println!("cargo:rustc-link-lib=dylib=vosk");
+    // println!("cargo:rustc-link-search=native=./native");
+    // println!("cargo:rustc-link-lib=dylib=vosk");
     println!("cargo:rerun-if-changed=src/build.rs");
 
     if std::env::var("CI").is_ok() {
