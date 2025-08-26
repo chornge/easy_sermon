@@ -1,54 +1,129 @@
-use serde_json::json;
-use std::error::Error;
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
-use tokio::time::{Duration, timeout};
+
+use anyhow::Result;
+use serde::Deserialize;
+use std::{collections::HashMap, fs};
+
+#[derive(Debug, Deserialize)]
+struct Verse {
+    verse: u32,
+    text: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct Chapter {
+    chapter: u32,
+    verses: Vec<Verse>,
+}
+
+#[derive(Debug, Deserialize)]
+struct Book {
+    name: String,
+    chapters: Vec<Chapter>,
+}
+
+#[derive(Debug, Deserialize)]
+struct BibleJson {
+    books: Vec<Book>,
+}
+
+/// Bible data structure: Book -> Chapter -> Verse -> Text
+type BibleMap = HashMap<String, HashMap<String, HashMap<String, String>>>;
+
+fn load_bible(path: &str) -> Result<BibleMap> {
+    let data = fs::read_to_string(path)?;
+    let raw: BibleJson = serde_json::from_str(&data)?;
+
+    let mut bible = HashMap::new();
+
+    for book in raw.books {
+        let mut chapters_map = HashMap::new();
+        for chapter in book.chapters {
+            let mut verses_map = HashMap::new();
+            for verse in chapter.verses {
+                verses_map.insert(verse.verse.to_string(), verse.text.trim().to_string());
+            }
+            chapters_map.insert(chapter.chapter.to_string(), verses_map);
+        }
+        bible.insert(book.name, chapters_map);
+    }
+
+    Ok(bible)
+}
+
+fn bible_offline(reference: &str, bible: &BibleMap) -> String {
+    let parts: Vec<&str> = reference.rsplitn(2, ' ').collect();
+    if parts.len() < 2 {
+        return format!("Verse not found: {reference}");
+    }
+
+    let chapter_verse = parts[0];
+    let book = parts[1];
+
+    if let Some(chapter_split) = chapter_verse.split_once(':') {
+        let chapter = chapter_split.0;
+        let verse_part = chapter_split.1;
+
+        if let Some((start_str, end_str)) = verse_part.split_once('-') {
+            // Handle verse range
+            if let (Ok(start), Ok(end)) = (start_str.parse::<u32>(), end_str.parse::<u32>()) {
+                let mut lines = Vec::new();
+                for v in start..=end {
+                    if let Some(text) = bible
+                        .get(book)
+                        .and_then(|c| c.get(chapter))
+                        .and_then(|vmap| vmap.get(&v.to_string()))
+                    {
+                        let line = format!("{book} {chapter}:{v} — {text}");
+                        println!("{}", line);
+                        lines.push(line);
+                    }
+                }
+                return lines.join("\n");
+            }
+        } else {
+            // Single verse
+            if let Some(text) = bible
+                .get(book)
+                .and_then(|c| c.get(chapter))
+                .and_then(|vmap| vmap.get(verse_part))
+            {
+                let line = format!("{reference} — {text}");
+                println!("{}", line);
+                return line;
+            }
+        }
+    }
+
+    format!("Verse not found: {reference}")
+}
 
 #[allow(dead_code)]
-pub async fn stage_display(verse: &str) -> Result<(), Box<dyn Error>> {
-    let host = "localhost";
-    let port = 54346;
-    let addr = format!("{host}:{port}");
-
-    let request = json!({
+pub async fn stage_display(verse: &str) -> Result<()> {
+    let request_obj = serde_json::json!({
         "url": "v1/stage/message",
         "method": "PUT",
         "body": verse,
         "chunked": false
     });
 
-    // Convert to string and append CRLF
-    let mut request_str = request.to_string();
-    request_str.push_str("\r\n");
+    let request_str = format!("{}\r\n", request_obj);
 
-    // Connect with a timeout of 3 seconds
-    let stream = match timeout(Duration::from_secs(3), TcpStream::connect(addr)).await {
-        Ok(Ok(s)) => s,
-        Ok(Err(e)) => {
-            eprintln!("❌ Connection error: {}", e);
-            return Err(Box::new(e));
+    let addr = format!("{}:{}", "localhost", "54346");
+
+    let full_verse = bible_offline(verse, &load_bible("translations/akjv/akjv.json")?);
+
+    match TcpStream::connect(addr).await {
+        Ok(mut stream) => {
+            stream.write_all(request_str.as_bytes()).await?;
+            stream.flush().await?;
+            println!("✅ {full_verse} is on Stage Display");
         }
-        Err(_) => {
-            eprintln!("❌ Connection timed out");
-            return Err("Connection timed out".into());
+        Err(e) => {
+            eprintln!("❌ Error sending to Stage Display: {e}");
         }
-    };
-
-    // Split the TcpStream into writer half (to be explicit about usage)
-    let (_, mut writer) = tokio::io::split(stream);
-
-    if let Err(e) = writer.write_all(request_str.as_bytes()).await {
-        eprintln!("❌ Write error: {}", e);
-        return Err(Box::new(e));
     }
-
-    // Flush and shutdown the writer explicitly
-    if let Err(e) = writer.shutdown().await {
-        eprintln!("❌ Shutdown error: {}", e);
-        return Err(Box::new(e));
-    }
-
-    println!("✅ {verse} is on Stage Display");
 
     Ok(())
 }
