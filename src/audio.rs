@@ -34,7 +34,7 @@ fn process_result(json_str: &str, verses: &Arc<Mutex<Vec<String>>>) {
         return;
     }
 
-    println!("🔍 Transcript: {}", text);
+    println!("🔍 Transcript: {text}");
 
     for verse in bible_verse(&text) {
         let mut locked_verses = verses.lock().unwrap();
@@ -52,13 +52,15 @@ fn process_result(json_str: &str, verses: &Arc<Mutex<Vec<String>>>) {
 #[allow(dead_code)]
 pub fn speech_to_text() -> Result<()> {
     const SAMPLE_RATE: f32 = 16000.0;
-    const MODEL_PATH: &str = "models/vosk-model-en-us-0.42-gigaspeech";
+    const MODEL_PATH: &str = "../models/vosk-model-en-us-0.42-gigaspeech";
 
     let model = Model::new(MODEL_PATH)
         .ok_or_else(|| anyhow::anyhow!("Model not found or failed to load"))?;
-    let recognizer = Recognizer::new(&model, SAMPLE_RATE)
-        .ok_or_else(|| anyhow::anyhow!("Failed to create Recognizer"))?;
-    let recognizer = Arc::new(Mutex::new(recognizer));
+
+    let recognizer = Arc::new(Mutex::new(
+        Recognizer::new(&model, SAMPLE_RATE)
+            .ok_or_else(|| anyhow::anyhow!("Failed to create Recognizer"))?,
+    ));
 
     let (tx, rx) = crossbeam_channel::unbounded::<Vec<i16>>();
     let verses = Arc::new(Mutex::new(Vec::<String>::new()));

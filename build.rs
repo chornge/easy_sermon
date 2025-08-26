@@ -27,8 +27,8 @@ async fn main() {
         MODEL_FULL_PATH.as_str()
     );
 
-    println!("cargo:rustc-link-search=native=.");
-    // println!("cargo:rustc-link-lib=static=vosk");
+    // println!("cargo:rustc-link-search=native=./native");
+    // println!("cargo:rustc-link-lib=dylib=vosk");
     println!("cargo:rerun-if-changed=src/build.rs");
 
     if std::env::var("CI").is_ok() {
@@ -58,16 +58,6 @@ async fn main() {
         panic!("Failed to extract model: {e}");
     }
 
-    // let lib_url = "https://github.com/nikita-skobov/voskrust/releases/download/v1.0.0/libvosk.a";
-    // if !Path::new("libvosk.a").exists() {
-    //     println!("Downloading libvosk.a from: {lib_url}");
-    //     if let Err(e) = download_file(lib_url, "libvosk.a").await {
-    //         panic!("Failed to download libvosk.a: {e}");
-    //     }
-    // } else {
-    //     println!("libvosk.a already exists");
-    // }
-
     // Create .env if it doesn't exist
     let env_path = Path::new(".env");
     if !env_path.exists() {
@@ -85,16 +75,6 @@ async fn main() {
     }
 
     println!("Model download and Path declaration complete.");
-}
-
-#[allow(dead_code)]
-async fn download_file(url: &str, output_path: &str) -> Result<(), Box<dyn Error>> {
-    let client = Client::new();
-    let response = client.get(url).send().await?.error_for_status()?;
-    let bytes = response.bytes().await?;
-    let mut file = File::create(output_path)?;
-    file.write_all(&bytes)?;
-    Ok(())
 }
 
 async fn download_zip(url: &str) -> Result<Vec<u8>, Box<dyn Error>> {
