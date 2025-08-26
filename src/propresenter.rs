@@ -124,3 +124,69 @@ pub async fn stage_display(verse: &str) -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tokio::net::TcpListener;
+
+    #[test]
+    fn test_load_bible_and_single_verse() {
+        let path = "translations/test_bible.json";
+
+        let bible = load_bible(path).unwrap();
+        assert!(bible.contains_key("John"));
+        assert_eq!(bible["John"]["3"]["16"], "For God so loved the world.");
+
+        let text = bible_offline("John 3:16", &bible);
+        assert_eq!(text, "John 3:16 — For God so loved the world.");
+    }
+
+    #[test]
+    fn test_load_bible_and_multiple_verses() {
+        let path = "translations/test_bible.json";
+
+        let bible = load_bible(path).unwrap();
+
+        let text = bible_offline("John 3:16-17", &bible);
+        let expected = vec![
+            "John 3:16 — For God so loved the world.",
+            "John 3:17 — For God did not send his Son to condemn.",
+        ]
+        .join("\n");
+
+        assert_eq!(text, expected);
+    }
+
+    #[test]
+    fn test_load_bible_with_invalid_verse() {
+        let path = "translations/test_bible.json";
+
+        let bible = load_bible(path).unwrap();
+
+        let text = bible_offline("NotABook 1:1", &bible);
+        assert_eq!(text, "Verse not found: NotABook 1:1");
+    }
+
+    #[tokio::test]
+    async fn test_sending_verse_to_stage_display() {
+        // Start mock TCP server
+        let listener = TcpListener::bind("localhost:54346").await.unwrap();
+
+        // Spawn server task
+        let server = tokio::spawn(async move {
+            if let Ok((socket, _)) = listener.accept().await {
+                let _ = vec![0; 1024];
+                let n = socket.readable().await.unwrap();
+                // We don't care about the message, as long as a connection is made
+                n
+            }
+        });
+
+        let result = stage_display("John 3:16").await;
+        assert!(result.is_ok());
+
+        // Clean up
+        server.abort();
+    }
+}
