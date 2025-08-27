@@ -1,5 +1,5 @@
 // mod audio;
-mod propresenter;
+mod presenter;
 mod scriptures;
 
 use anyhow::Result;
@@ -8,7 +8,7 @@ use std::env;
 use std::process::Command;
 
 // use crate::audio::speech_to_text;
-// use crate::propresenter::stage_display;
+// use crate::presenter::stage_display;
 // use crate::scriptures::bible_verse;
 
 #[tokio::main]
