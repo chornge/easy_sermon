@@ -5,6 +5,16 @@ import json
 PRO7_P_HOST = "localhost"
 PRO7_P_PORT = 54346
 
+active_websockets = set()
+
+
+def register(ws):
+    active_websockets.add(ws)
+
+
+def unregister(ws):
+    active_websockets.discard(ws)
+
 
 def load_bible(path: str) -> dict:
     with open(path, "r", encoding="utf-8") as f:
@@ -73,6 +83,14 @@ async def stage_display(verse: str) -> None:
 
     except Exception as e:
         print("❌ Error during send:", e)
+
+
+async def broadcast(verse: str):
+    for ws in list(active_websockets):
+        try:
+            await ws.send_text(verse)
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
