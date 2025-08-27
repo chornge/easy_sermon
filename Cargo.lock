@@ -381,7 +381,7 @@ checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
 
 [[package]]
 name = "easy_sermon"
-version = "2.3.1"
+version = "2.3.2"
 dependencies = [
  "anyhow",
  "cpal",

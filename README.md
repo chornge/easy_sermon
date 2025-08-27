@@ -1,14 +1,15 @@
 ![CI/CD](https://github.com/chornge/easy_sermon/actions/workflows/build.yml/badge.svg?branch=main)
 
-An application that listens to a live audio stream, recognizes any Bible verses, and displays the scripture in a structured format.
+An application that listens to a live audio stream, recognizes any Bible verses, and displays the Scripture.
 
 ## Architecture
 
 ![Design Doc](design_doc.excalidraw.png)
 
-- **Audio Stream Listening**: Captures audio from an input device.
-- **Speech Recognition**: Utilizes the Vosk model to convert audio to text.
-- **Verse Detection**: Matches texts against Bible verses using fuzzy-matching & regular expressions.
+- **Audio Stream**: Capture audio from an input device.
+- **Speech Recognition**: Utilize the Vosk speech model to convert audio to text.
+- **Verse Detection**: Match texts against Bible verses using regular expressions (regex).
+- **Display Output**: Send detected verses to Stage Display for live presentation.
 
 ## Requirements
 
@@ -22,7 +23,7 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 
 ```
 git clone https://github.com/chornge/easy_sermon.git
-cd ~/PATH/to/easy_sermon
+cd easy_sermon
 python3 -m venv venv
 source venv/bin/activate
 pip install -r api/requirements.txt
@@ -42,7 +43,9 @@ Run:
 cargo run --release
 ```
 
-Navigate to `http://localhost` on the browser. Allow microphone access (if the prompt pops up).
+Wait ~30 seconds until application shows `Ready...🎙️...`
+
+Navigate to `http://localhost` in the browser. Allow microphone access (if prompted) and start speaking:
 
 ```
 "for the hope we have in john three verse sixteen" -> ['John 3:16']

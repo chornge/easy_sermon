@@ -1,15 +1,15 @@
-// mod audio;
-mod propresenter;
-mod scriptures;
+// mod capture;
+mod detect;
+mod display;
 
 use anyhow::Result;
 use dotenv::dotenv;
 use std::env;
 use std::process::Command;
 
-// use crate::audio::speech_to_text;
-// use crate::propresenter::stage_display;
-// use crate::scriptures::bible_verse;
+// use crate::capture::speech_to_text;
+// use crate::detect::bible_verse;
+// use crate::display::stage_display;
 
 #[tokio::main]
 async fn main() -> Result<()> {

@@ -9,7 +9,7 @@ import threading
 
 # import torch
 
-from api.audio import speech_to_text, verses
+from api.capture import speech_to_text, verses
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
