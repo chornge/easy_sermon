@@ -11,4 +11,5 @@ tokenizers==0.21.0
 transformers==4.53.2
 uvicorn==0.29.0
 vosk==0.3.44
+websockets==15.0.1
 word2number==1.1
