@@ -27,7 +27,7 @@ def load_bible(path: str) -> dict:
 BIBLE_TEXT = load_bible("translations/akjv/akjv.json")
 
 
-def bible_offline(reference: str) -> str:
+def offline_bible(reference: str) -> str:
     try:
         book, chapter_verse = reference.rsplit(" ", 1)
         if "-" in chapter_verse:
@@ -76,5 +76,5 @@ async def stage_display(verse: str) -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(stage_display(bible_offline("John 3:16")))
+    asyncio.run(stage_display(offline_bible("John 3:16")))
     sys.exit(0)
