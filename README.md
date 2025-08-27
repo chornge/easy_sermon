@@ -6,9 +6,10 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 
 ![Design Doc](design_doc.excalidraw.png)
 
-- **Audio Stream Listening**: Captures audio from an input device.
-- **Speech Recognition**: Utilizes the Vosk model to convert audio to text.
-- **Verse Detection**: Matches texts against Bible verses using fuzzy-matching & regular expressions.
+- **Audio Stream**: Capture audio from an input device.
+- **Speech Recognition**: Utilize the Vosk speech model to convert audio to text.
+- **Verse Detection**: Match texts against Bible verses using regular expressions (regex).
+- **Display Output**: Send detected verses to Stage Display for live presentation.
 
 ## Requirements
 
