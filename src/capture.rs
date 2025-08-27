@@ -93,7 +93,7 @@ pub fn speech_to_text() -> Result<()> {
         });
     }
 
-    println!("🎙️ Ready to listen...");
+    println!("Ready...🎙️...");
 
     for buffer in rx.iter() {
         let mut rec = recognizer.lock().unwrap();
