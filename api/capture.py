@@ -5,8 +5,8 @@ import queue
 import sounddevice as sd
 
 from vosk import Model, KaldiRecognizer
-from api.scriptures import bible_verse
-from api.presenter import bible_offline, stage_display
+from api.detect import bible_verse
+from api.display import bible_offline, stage_display
 
 # Global settings
 SAMPLE_RATE = 16000
