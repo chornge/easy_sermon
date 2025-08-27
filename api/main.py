@@ -9,7 +9,7 @@ import threading
 
 # import torch
 
-from api.broadcast import register, unregister
+from api.display import register, unregister
 from api.capture import speech_to_text, verses
 
 BASE_DIR = Path(__file__).resolve().parent.parent

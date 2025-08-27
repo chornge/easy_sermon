@@ -45,7 +45,7 @@ cargo run --release
 
 Wait ~30 seconds until application shows `Ready...🎙️...`
 
-Navigate to `http://localhost` in the browser. Allow microphone access (if prompted) and start speaking:
+Navigate to `http://localhost` in the browser. Allow microphone & clipboard access (if prompted) and start speaking:
 
 ```
 "for the hope we have in john three verse sixteen" -> ['John 3:16']
