@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, WebSocket
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
@@ -9,6 +9,7 @@ import threading
 
 # import torch
 
+from api.broadcast import register, unregister
 from api.capture import speech_to_text, verses
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,3 +44,16 @@ async def home(request: Request):
     return templates.TemplateResponse(
         "index.html", {"request": request, "verses": verses}
     )
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    register(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except Exception:
+        pass
+    finally:
+        unregister(websocket)
