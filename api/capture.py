@@ -4,7 +4,7 @@ import json
 import queue
 import sounddevice as sd
 
-from vosk import Model, KaldiRecognizer
+from vosk import KaldiRecognizer, Model
 from api.detect import bible_verse
 from api.display import broadcast, offline_bible, stage_display
 
@@ -39,7 +39,9 @@ def speech_to_text() -> None:
         channels=1,
         callback=callback,
     ):
+
         print("Ready...🎙️...")
+
         while True:
             data = audio_queue.get()
             if recognizer.AcceptWaveform(data):
