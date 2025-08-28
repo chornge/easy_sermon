@@ -1,6 +1,6 @@
-import sys
 import asyncio
 import json
+import pytest
 
 PRO7_P_HOST = "localhost"
 PRO7_P_PORT = 54346
@@ -93,6 +93,69 @@ async def broadcast(verse: str):
             pass
 
 
-if __name__ == "__main__":
-    asyncio.run(stage_display(offline_bible("John 3:16")))
-    sys.exit(0)
+def test_offline_bible_with_an_invalid_verse() -> None:
+    result = offline_bible("NotABook 1:1")
+    expected = "Verse not found: NotABook 1:1"
+    assert result == expected
+
+
+def test_offline_bible_with_a_single_verse() -> None:
+    result = offline_bible("2 Corinthians 5:17")
+    expected = "2 Corinthians 5:17 — Therefore if any man be in Christ, he is a new creature: old things are passed away; behold, all things are become new."
+    assert result == expected
+
+
+def test_offline_bible_with_a_verse_range() -> None:
+    result = offline_bible("Philippians 4:6-7")
+    expected = (
+        "Philippians 4:6 — Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known to God.\n"
+        "Philippians 4:7 — And the peace of God, which passes all understanding, shall keep your hearts and minds through Christ Jesus."
+    )
+    assert result == expected
+
+
+@pytest.mark.asyncio
+async def test_stage_display(monkeypatch):
+    # Mock TCP
+    class DummyWriter:
+        def write(self, data):
+            pass
+
+        async def drain(self):
+            pass
+
+        def close(self):
+            pass
+
+        async def wait_closed(self):
+            pass
+
+    async def dummy_open_connection(host, port):
+        return None, DummyWriter()
+
+    monkeypatch.setattr(asyncio, "open_connection", dummy_open_connection)
+
+    # Should not raise any exceptions
+    await stage_display("Test verse")
+
+
+@pytest.mark.asyncio
+async def test_broadcast():
+    # Mock WebSocket
+    class DummyWS:
+        def __init__(self):
+            self.sent = []
+
+        async def send_text(self, text):
+            self.sent.append(text)
+
+    client1 = DummyWS()
+    client2 = DummyWS()
+    active_websockets.clear()
+    active_websockets.add(client1)
+    active_websockets.add(client2)
+
+    await broadcast("John 3:16")
+
+    assert client1.sent == ["John 3:16"]
+    assert client2.sent == ["John 3:16"]

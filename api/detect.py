@@ -206,20 +206,49 @@ def bible_verse(text: str) -> list[str]:
     return results
 
 
-if __name__ == "__main__":
-    samples = [
-        "for the hope we have in john three verse sixteen",
-        "keeping in mind the consequences in romans six verse twenty three",
-        "nothing compares to the grace in ephesians two verse eight",
-        "showing how near salvation is in romans ten verse nine",
-        "finding true life in john fourteen verse six",
-        "and our identity in galatians two verse twenty",
-        "we are never too far gone in first john one verse nine",
-        "for we celebrate a fresh start in second corinthians five verse seventeen",
-        "finding the blueprint for peace in philippians four verses six and seven",
-        "while on the great commission in matthew twenty eight verse nineteen through twenty",
+def test_john_3_vs_16():
+    assert bible_verse("john three verse sixteen") == ["John 3:16"]
+
+
+def test_romans_6_vs_23():
+    assert bible_verse("romans six verse twenty three") == ["Romans 6:23"]
+
+
+def test_ephesians_2_vs_8():
+    assert bible_verse("ephesians two verse eight") == ["Ephesians 2:8"]
+
+
+def test_romans_10_vs_9():
+    assert bible_verse("romans ten verse nine") == ["Romans 10:9"]
+
+
+def test_john_14_vs_6():
+    assert bible_verse("john fourteen verse six") == ["John 14:6"]
+
+
+def test_galatians_2_vs_20():
+    assert bible_verse("galatians two verse twenty") == ["Galatians 2:20"]
+
+
+def test_1_john_1_vs_9():
+    assert bible_verse("first john one verse nine") == ["1 John 1:9"]
+
+
+def test_2_corinthians_5_vs_17():
+    assert bible_verse("second corinthians five verse seventeen") == [
+        "2 Corinthians 5:17"
     ]
 
-    for line in samples:
-        print(f"🔍 Audio: {line}")
-        print("✅ Got:", bible_verse(line), "\n")
+
+def test_philippians_4_vs_6_and_7():
+    assert bible_verse("philippians four verses six and seven") == ["Philippians 4:6-7"]
+
+
+def test_matthew_28_vs_19_and_20():
+    assert bible_verse("matthew twenty eight verse nineteen through twenty") == [
+        "Matthew 28:19-20"
+    ]
+
+
+def test_invalid_verse():
+    assert bible_verse("notabook one verse one") == []
