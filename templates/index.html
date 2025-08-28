@@ -7,16 +7,38 @@
         font-family: Arial, sans-serif;
         text-align: center;
         margin-top: 50px;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
       }
-      .verse {
-        margin: 10px;
+      #verses {
+        max-height: 80vh;
+        overflow-y: auto;
         padding: 10px;
-        border: 4px solid #ccc;
-        display: inline-block;
+        border: 1px solid #eee;
+      }
+      .passage {
+        margin: 20px 0;
+        padding: 16px;
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        background: #fafafa;
+        text-align: left;
         cursor: pointer;
       }
-
-      /* new verses: red blink */
+      .reference {
+        font-weight: bold;
+        font-size: 1.2em;
+        margin-bottom: 8px;
+      }
+      .text {
+        font-size: 1em;
+        margin-top: 4px;
+        white-space: pre-line;
+      }
+      .new {
+        animation: blink-red 0.4s ease-in-out;
+      }
       @keyframes blink-red {
         0%,
         100% {
@@ -26,36 +48,20 @@
           border-color: transparent;
         }
       }
-      .new {
-        animation: blink-red 0.4s ease-in-out;
-      }
-
-      /* moved‐later verses: green blink */
-      @keyframes blink-green {
-        0%,
-        100% {
-          border-color: green;
-        }
-        50% {
-          border-color: transparent;
-        }
-      }
-      .moved {
-        animation: blink-green 0.4s ease-in-out;
-      }
     </style>
   </head>
   <body>
     <h2>Pro-Sermon-Presenter (PSP)</h2>
     <p>
       Every passage that appears is auto-copied to clipboard. Clicking on a
-      passage also copies to clipboard.
+      passage also copies that reference to clipboard.
     </p>
 
     <div id="verses">
-      {% for verse in verses %}
-      <div class="verse" onclick="copyToClipboard('{{ verse }}')">
-        {{ verse }}
+      {% for passage in passages %}
+      <div class="passage" onclick="copyToClipboard('{{ passage.reference }}')">
+        <div class="reference">{{ passage.reference }}</div>
+        <div class="text">{{ passage.text }}</div>
       </div>
       {% endfor %}
     </div>
@@ -64,16 +70,28 @@
       const ws = new WebSocket("ws://" + location.host + "/ws");
 
       ws.onmessage = function (event) {
-        const verse = event.data;
+        let data;
+        try {
+          data = JSON.parse(event.data);
+        } catch {
+          // fallback for old format
+          data = { reference: event.data, text: "" };
+        }
         const versesDiv = document.getElementById("verses");
         const el = document.createElement("div");
-        el.className = "verse new";
-        el.textContent = verse;
-        el.onclick = () => copyToClipboard(verse);
+        el.className = "passage new";
+        el.onclick = () => copyToClipboard(`${data.reference}`);
+        el.innerHTML = `
+          <div class="reference">${data.reference}</div>
+          <div class="text">${data.text}</div>
+        `;
         versesDiv.appendChild(el);
 
         // Auto-copy to clipboard
-        copyToClipboard(verse);
+        copyToClipboard(`${data.reference}`);
+
+        // Auto-scroll to bottom
+        versesDiv.scrollTop = versesDiv.scrollHeight;
       };
 
       function copyToClipboard(text) {

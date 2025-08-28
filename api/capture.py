@@ -4,7 +4,7 @@ import json
 import queue
 import sounddevice as sd
 
-from vosk import Model, KaldiRecognizer
+from vosk import KaldiRecognizer, Model
 from api.detect import bible_verse
 from api.display import broadcast, offline_bible, stage_display
 
@@ -20,12 +20,12 @@ recognizer = KaldiRecognizer(model, SAMPLE_RATE)
 
 audio_queue = queue.Queue()
 
-verses = []
-last_verse = None
+verses = ["Genesis 1:1"]  # Initial verse
+previous_verse = None
 
 
 def speech_to_text() -> None:
-    global last_verse
+    global previous_verse
 
     def callback(indata, frames, time, status) -> None:
         if status:
@@ -39,7 +39,9 @@ def speech_to_text() -> None:
         channels=1,
         callback=callback,
     ):
+
         print("Ready...🎙️...")
+
         while True:
             data = audio_queue.get()
             if recognizer.AcceptWaveform(data):
@@ -64,9 +66,12 @@ def speech_to_text() -> None:
 
             # Detect Bible verses
             for verse in bible_verse(text):
-                if verse != last_verse:
-                    last_verse = verse
+                if verse != previous_verse:
                     print("✅ Got:", verse)
                     verses.append(verse)
-                    asyncio.run(broadcast(verse))
-                    asyncio.run(stage_display(offline_bible(verse)))
+                    previous_verse = verse
+                    full_text = offline_bible(verse)
+                    asyncio.run(
+                        broadcast(json.dumps({"reference": verse, "text": full_text}))
+                    )
+                    asyncio.run(stage_display(full_text))
