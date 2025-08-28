@@ -26,6 +26,14 @@
         border-bottom-left-radius: 32px;
         border-bottom-right-radius: 32px;
         margin-bottom: 32px;
+        box-sizing: border-box;
+      }
+      .header-content {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 0 18px;
+        text-align: center;
+        box-sizing: border-box;
       }
       header h2 {
         font-size: 2.5em;
@@ -142,13 +150,15 @@
   </head>
   <body>
     <header>
-      <h2>Easy-Sermon</h2>
-      <p>
-        Listens for Bible references to display (i.e Genesis One verse One)<br />
-        <span style="color: #fceabb"
-          >New references (Genesis 1:1) will be auto-copied to clipboard</span
-        >
-      </p>
+      <div class="header-content">
+        <h2>Easy-Sermon</h2>
+        <p>
+          Listens for Bible references to display (i.e Genesis One verse One)<br />
+          <span style="color: #fceabb"
+            >New references (Genesis 1:1) will be auto-copied to clipboard</span
+          >
+        </p>
+      </div>
     </header>
 
     <div id="verses">
