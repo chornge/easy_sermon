@@ -192,8 +192,10 @@
         `;
         versesDiv.appendChild(el);
 
-        // Auto-copy to clipboard
-        copyToClipboard(`${data.reference}`);
+        // Only auto-copy if document is in focus
+        if (document.hasFocus()) {
+          copyToClipboard(`${data.reference}`);
+        }
 
         // Auto-scroll entire page to bottom
         window.scrollTo({
@@ -206,11 +208,9 @@
       };
 
       function copyToClipboard(text) {
-        navigator.clipboard
-          .writeText(text)
-          .catch((err) => alert("Copy failed: " + err));
+        navigator.clipboard.writeText(text).catch(() => {}); // Silently ignore errors
       }
-      // Auto-scroll verses section to bottom after page refresh
+
       window.addEventListener("DOMContentLoaded", function () {
         const versesDiv = document.getElementById("verses");
         versesDiv.scrollTop = versesDiv.scrollHeight;
