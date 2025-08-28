@@ -20,12 +20,12 @@ recognizer = KaldiRecognizer(model, SAMPLE_RATE)
 
 audio_queue = queue.Queue()
 
-verses = []
-last_verse = None
+verses = ["Genesis 1:1"]  # Initial verse
+previous_verse = None
 
 
 def speech_to_text() -> None:
-    global last_verse
+    global previous_verse
 
     def callback(indata, frames, time, status) -> None:
         if status:
