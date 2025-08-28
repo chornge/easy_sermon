@@ -4,6 +4,8 @@ fastapi==0.116.1
 fuzzywuzzy[speedup]==0.18.0
 huggingface-hub==0.33.4
 numpy==1.26.4
+pytest==8.4.1
+pytest-asyncio==1.1.0
 scipy==1.13.1
 sounddevice==0.5.2
 tokenizers==0.21.0
