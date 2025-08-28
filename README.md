@@ -62,6 +62,6 @@ Navigate to `http://localhost` in the browser. Allow microphone & clipboard acce
 
 ## Limitations
 
-• Struggles with `Nehemiah` and `Psalms`.
+• Struggles with `Nehemiah` and `Malachi`.
 
 • The word `"verse"` must be present for accurate Bible verse extraction.
