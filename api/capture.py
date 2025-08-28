@@ -64,9 +64,12 @@ def speech_to_text() -> None:
 
             # Detect Bible verses
             for verse in bible_verse(text):
-                if verse != last_verse:
-                    last_verse = verse
+                if verse != previous_verse:
                     print("✅ Got:", verse)
                     verses.append(verse)
-                    asyncio.run(broadcast(verse))
-                    asyncio.run(stage_display(offline_bible(verse)))
+                    previous_verse = verse
+                    full_text = offline_bible(verse)
+                    asyncio.run(
+                        broadcast(json.dumps({"reference": verse, "text": full_text}))
+                    )
+                    asyncio.run(stage_display(full_text))
