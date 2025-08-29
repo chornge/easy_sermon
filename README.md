@@ -37,6 +37,11 @@ chmod +x get-certificates.sh
 bash get-certificates.sh
 ```
 
+To send verses to Stage Display, enable Pro-Presenter API (TCP with port 54346)
+
+![TCP Connection](propresenter_tcp.png)
+
+
 Run:
 
 ```
