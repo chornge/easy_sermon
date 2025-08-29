@@ -39,10 +39,9 @@ bash get-certificates.sh
 
 To send verses to Stage Display, enable Pro-Presenter API (TCP with port 54346)
 
+ProPresenter > Settings > Network
+
 ![TCP Connection](propresenter_tcp.png)
-
-
-Run:
 
 ```
 cargo run --release
@@ -50,7 +49,9 @@ cargo run --release
 
 Wait ~30 seconds until application shows `Ready...🎙️...`
 
-Navigate to `http://localhost` in the browser. Allow microphone & clipboard access (if prompted) and start speaking:
+Navigate to `http://localhost` in the browser. Allow microphone & clipboard access (if prompted)
+
+Start speaking:
 
 ```
 "for the hope we have in john three verse sixteen" -> ['John 3:16']
