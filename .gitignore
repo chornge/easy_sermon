@@ -1,7 +1,6 @@
 /models
 /target
 __pycache__
-libvosk.a
 venv
 .env
 .vscode
