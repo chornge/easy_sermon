@@ -71,3 +71,9 @@ Start speaking:
 • Struggles with `Nehemiah` and `Malachi`.
 
 • The word `"verse"` must be present for accurate Bible verse extraction.
+
+### Demo
+https://github.com/user-attachments/assets/c03a0ed5-18c1-4bc8-a1c5-6fad6f200304
+
+
+
