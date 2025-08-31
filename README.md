@@ -13,11 +13,12 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 
 ## Requirements
 
-- Rust (install via [rustup](https://rustup.rs/))
-- Python (`v3.10`)
+- XCode Command Line Tools (`sudo xcode select --install` on macOS) - for Git, etc
+- [HomeBrew](https://brew.sh) - macOS only
+- Rust (install via [rustup](https://rustup.rs/)) - for Cargo/Rustup
 - Audio input device (microphone, etc)
-- FFMPEG (`brew install ffmpeg` on macOS)
-- [Vosk](https://alphacephei.com/vosk/models) (`small`, `lgraph`, `gigaspeech`, etc) - downloaded as part of build script (~4 GB).
+- OpenSSL (`brew install openssl` on macOS)
+- [Vosk](https://alphacephei.com/vosk/models) (`small`, `lgraph`, `gigaspeech`, etc) - will be downloaded during cargo build (~4 GB)
 
 ## Usage
 
@@ -29,7 +30,7 @@ source venv/bin/activate
 pip install -r api/requirements.txt
 ```
 
-On macOS only - manually install system certs, run:
+On macOS only - manually install system certs (optional), run:
 
 ```
 chmod +x get-certificates.sh
