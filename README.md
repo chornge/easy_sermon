@@ -1,6 +1,6 @@
 ![CI/CD](https://github.com/chornge/easy_sermon/actions/workflows/build.yml/badge.svg?branch=main)
 
-An application that listens to a live audio stream, recognizes any Bible verses, and displays the Scripture.
+An application that listens to a live audio stream, recognizes any Bible verses, and displays the Scripture (demo below).
 
 ## Architecture
 
@@ -13,24 +13,41 @@ An application that listens to a live audio stream, recognizes any Bible verses,
 
 ## Requirements
 
-- XCode Command Line Tools (`sudo xcode select --install` on macOS) - for Git, etc
-- [HomeBrew](https://brew.sh) - macOS only
-- Rust (install via [rustup](https://rustup.rs/)) - for Cargo/Rustup
+- Python (v3.10)
 - Audio input device (microphone, etc)
-- OpenSSL (`brew install openssl` on macOS)
-- [Vosk](https://alphacephei.com/vosk/models) (`small`, `lgraph`, `gigaspeech`, etc) - will be downloaded during cargo build (~4 GB)
+- Enough space for [Vosk](https://alphacephei.com/vosk/models) - downloaded during build (~4GB)
+
+### Windows
+
+- [Git for Windows](https://git-scm.com/downloads/win) Portable edition (includes Git & OpenSSL)
+- Rust ([rustup](https://rustup.rs/))
+
+### Mac
+
+- Command Line Tools - `sudo xcode select --install`
+- [brew](https://brew.sh) (optional for installing OpenSSL)
+- OpenSSL - `brew install openssl`
+- Rust ([rustup](https://rustup.rs/))
 
 ## Usage
 
 ```
 git clone https://github.com/chornge/easy_sermon.git
 cd easy_sermon
-python3 -m venv venv
-source venv/bin/activate
+python -m venv venv
+```
+
+Activate virtual environment:
+
+`source venv/bin/activate` (macOS)
+
+`venv\Scripts\activate` (windows)
+
+```
 pip install -r api/requirements.txt
 ```
 
-On macOS only - manually install system certs (optional), run:
+macOS only - if missing, install system certs:
 
 ```
 chmod +x get-certificates.sh
@@ -38,7 +55,7 @@ chmod +x get-certificates.sh
 bash get-certificates.sh
 ```
 
-To send verses to Stage Display, enable Pro-Presenter API (TCP with port 54346)
+To receive verses on Stage Display, enable Pro-Presenter API (TCP with port 54346)
 
 ProPresenter > Settings > Network
 
@@ -73,8 +90,8 @@ Start speaking:
 
 • The word `"verse"` must be present for accurate Bible verse extraction.
 
+• Untested on Windows and Linux. Also untested on ARM64 (M1/M2/M3, etc).
+
 ### Demo
+
 https://github.com/user-attachments/assets/c03a0ed5-18c1-4bc8-a1c5-6fad6f200304
-
-
-
