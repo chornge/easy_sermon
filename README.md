@@ -41,7 +41,7 @@ Activate virtual environment:
 
 `source venv/bin/activate` (macOS)
 
-`venv\Scripts\activate` (windows)
+`source venv/Scripts/activate` (windows)
 
 ```
 pip install -r api/requirements.txt
