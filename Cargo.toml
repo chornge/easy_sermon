@@ -1,14 +1,14 @@
 [package]
 name = "easy_sermon"
-version = "2.3.8"
-edition = "2024"
+version = "2.3.9"
+edition = "2021"
 authors = [
     "Christian Mbaba <mxlightningx@gmail.com>",
     "Dominion Chapel Houston <media@dominionchapel.org>",
     "Blessing Ajughu <bajughu@gmail.com>",
 ]
 license = "Apache-2.0"
-description = "Recognize spoken Bible verses in any audio stream"
+description = "Detect, Extract & Send Bible verses to Pro-Presenter when spoken."
 
 [dependencies]
 anyhow = "1.0.98"

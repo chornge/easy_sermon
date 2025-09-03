@@ -37,7 +37,7 @@ def load_bible(path: str) -> dict:
 BIBLE_TEXT = load_bible("translations/akjv/akjv.json")
 
 
-def offline_bible(reference: str) -> str:
+def bible(reference: str) -> str:
     try:
         book, chapter_verse = reference.rsplit(" ", 1)
         if "-" in chapter_verse:
@@ -85,28 +85,29 @@ async def stage_display(verse: str) -> None:
         print("❌ Error during send:", e)
 
 
-async def broadcast(verse: str):
+async def broadcast(ref: str, verse: str):
+    await stage_display(verse)
     for ws in list(active_websockets):
         try:
-            await ws.send_text(verse)
+            await ws.send_text(json.dumps({"ref": ref, "text": verse}))
         except Exception:
             pass
 
 
 def test_offline_bible_with_an_invalid_verse() -> None:
-    result = offline_bible("NotABook 1:1")
+    result = bible("NotABook 1:1")
     expected = "Verse not found: NotABook 1:1"
     assert result == expected
 
 
 def test_offline_bible_with_a_single_verse() -> None:
-    result = offline_bible("2 Corinthians 5:17")
+    result = bible("2 Corinthians 5:17")
     expected = "2 Corinthians 5:17 — Therefore if any man be in Christ, he is a new creature: old things are passed away; behold, all things are become new."
     assert result == expected
 
 
 def test_offline_bible_with_a_verse_range() -> None:
-    result = offline_bible("Philippians 4:6-7")
+    result = bible("Philippians 4:6-7")
     expected = (
         "Philippians 4:6 — Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known to God.\n"
         "Philippians 4:7 — And the peace of God, which passes all understanding, shall keep your hearts and minds through Christ Jesus."
@@ -155,7 +156,9 @@ async def test_broadcast():
     active_websockets.add(client1)
     active_websockets.add(client2)
 
-    await broadcast("John 3:16")
+    await broadcast("John 3:16", "For God so loved the world.")
 
-    assert client1.sent == ["John 3:16"]
-    assert client2.sent == ["John 3:16"]
+    expected = json.dumps({"ref": "John 3:16", "text": "For God so loved the world."})
+
+    assert client1.sent == [expected]
+    assert client2.sent == [expected]
