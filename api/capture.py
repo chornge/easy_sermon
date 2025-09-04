@@ -20,7 +20,7 @@ recognizer = KaldiRecognizer(model, SAMPLE_RATE)
 
 audio_queue = queue.Queue()
 
-references = ["Genesis 1:1"]  # Initial reference
+initial_reference = ["Genesis 1:1"]
 previous_reference = None
 
 
@@ -68,7 +68,7 @@ def transcript() -> None:
             for reference in references(text):
                 if reference != previous_reference:
                     print("✅ Got:", reference)
-                    references.append(reference)
+                    initial_reference.append(reference)
                     previous_reference = reference
                     full_verse = verses(reference)
                     asyncio.run(broadcast(reference, full_verse))
