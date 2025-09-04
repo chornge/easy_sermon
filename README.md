@@ -86,8 +86,6 @@ Start speaking:
 
 ## Limitations
 
-• Struggles with `Nehemiah` and `Malachi`.
-
 • The word `"verse"` must be present for accurate Bible verse extraction.
 
 • Untested on Windows and Linux. Also untested on ARM64 (M1/M2/M3, etc).
