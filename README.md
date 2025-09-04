@@ -1,6 +1,10 @@
 ![CI/CD](https://github.com/chornge/easy_sermon/actions/workflows/build.yml/badge.svg?branch=main)
 
-An application that listens to a live audio stream, recognizes any Bible verses, and displays the Scripture (demo below).
+An application that listens to a live audio stream, recognizes any Bible verses, and displays the Scripture.
+
+### Demo
+
+https://github.com/user-attachments/assets/c03a0ed5-18c1-4bc8-a1c5-6fad6f200304
 
 ## Architecture
 
@@ -59,15 +63,15 @@ To receive verses on Stage Display, enable Pro-Presenter API (TCP with port 5434
 
 ProPresenter > Settings > Network
 
-![TCP Connection](propresenter_tcp.png)
+<img width="321" height="400" alt="propresenter_tcp" src="https://github.com/user-attachments/assets/b3cc630a-0e0a-4826-b3fc-b5625ed68506" />
 
 ```
 cargo run --release
 ```
 
-Wait ~30 seconds until application shows `Ready...🎙️...`
+Wait until application shows `Ready...🎙️...`
 
-Navigate to `http://localhost` in the browser. Allow microphone & clipboard access (if prompted)
+Navigate to `http://localhost` in the browser. Allow microphone & clipboard access (when prompted)
 
 Start speaking:
 
@@ -86,12 +90,6 @@ Start speaking:
 
 ## Limitations
 
-• Struggles with `Nehemiah` and `Malachi`.
-
 • The word `"verse"` must be present for accurate Bible verse extraction.
 
 • Untested on Windows and Linux. Also untested on ARM64 (M1/M2/M3, etc).
-
-### Demo
-
-https://github.com/user-attachments/assets/c03a0ed5-18c1-4bc8-a1c5-6fad6f200304
