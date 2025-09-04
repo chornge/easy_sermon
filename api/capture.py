@@ -5,8 +5,8 @@ import queue
 import sounddevice as sd
 
 from vosk import KaldiRecognizer, Model
-from api.detect import bible_verse
-from api.display import broadcast, offline_bible, stage_display
+from api.detect import bible_refs
+from api.display import broadcast, bible
 
 # Global settings
 SAMPLE_RATE = 16000
@@ -21,11 +21,11 @@ recognizer = KaldiRecognizer(model, SAMPLE_RATE)
 audio_queue = queue.Queue()
 
 verses = ["Genesis 1:1"]  # Initial verse
-previous_verse = None
+previous_reference = None
 
 
 def speech_to_text() -> None:
-    global previous_verse
+    global previous_reference
 
     def callback(indata, frames, time, status) -> None:
         if status:
@@ -65,13 +65,10 @@ def speech_to_text() -> None:
             print("🔍 Transcript:", text)
 
             # Detect Bible verses
-            for verse in bible_verse(text):
-                if verse != previous_verse:
-                    print("✅ Got:", verse)
-                    verses.append(verse)
-                    previous_verse = verse
-                    full_text = offline_bible(verse)
-                    asyncio.run(
-                        broadcast(json.dumps({"reference": verse, "text": full_text}))
-                    )
-                    asyncio.run(stage_display(full_text))
+            for reference in bible_refs(text):
+                if reference != previous_reference:
+                    print("✅ Got:", reference)
+                    verses.append(reference)
+                    previous_reference = reference
+                    full_verse = bible(reference)
+                    asyncio.run(broadcast(reference, full_verse))

@@ -9,7 +9,7 @@ import threading
 
 # import torch
 
-from api.display import register, unregister, offline_bible
+from api.display import register, unregister, bible
 from api.capture import speech_to_text, verses
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,7 +41,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    passages = [{"reference": v, "text": offline_bible(v)} for v in verses]
+    passages = [{"reference": v, "text": bible(v)} for v in verses]
     return templates.TemplateResponse(
         "index.html", {"request": request, "passages": passages}
     )

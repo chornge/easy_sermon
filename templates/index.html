@@ -184,17 +184,17 @@
         const versesDiv = document.getElementById("verses");
         const el = document.createElement("div");
         el.className = "passage new";
-        el.onclick = () => copyToClipboard(`${data.reference}`);
+        el.onclick = () => copyToClipboard(`${data.ref}`);
         el.innerHTML = `
           <span class="copy-hint">Click to copy</span>
-          <div class="reference">${data.reference}</div>
+          <div class="reference">${data.ref}</div>
           <div class="text">${data.text}</div>
         `;
         versesDiv.appendChild(el);
 
         // Only auto-copy if document is in focus
         if (document.hasFocus()) {
-          copyToClipboard(`${data.reference}`);
+          copyToClipboard(`${data.ref}`);
         }
 
         // Auto-scroll entire page to bottom
