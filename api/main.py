@@ -9,8 +9,8 @@ import threading
 
 # import torch
 
-from api.display import register, unregister, bible
-from api.capture import speech_to_text, verses
+from api.display import register, unregister, verses
+from api.capture import transcript, references
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
@@ -32,7 +32,7 @@ templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    threading.Thread(target=speech_to_text, daemon=True).start()
+    threading.Thread(target=transcript, daemon=True).start()
     yield
 
 
@@ -41,7 +41,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    passages = [{"reference": v, "text": bible(v)} for v in verses]
+    passages = [{"reference": ref, "text": verses(ref)} for ref in references]
     return templates.TemplateResponse(
         "index.html", {"request": request, "passages": passages}
     )

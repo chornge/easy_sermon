@@ -37,7 +37,7 @@ def load_bible(path: str) -> dict:
 BIBLE_TEXT = load_bible("translations/akjv/akjv.json")
 
 
-def bible(reference: str) -> str:
+def verses(reference: str) -> str:
     try:
         book, chapter_verse = reference.rsplit(" ", 1)
         if "-" in chapter_verse:
@@ -57,6 +57,15 @@ def bible(reference: str) -> str:
             return f"{reference} — {verse_text}"
     except Exception:
         return f"Verse not found: {reference}"
+
+
+async def broadcast(ref: str, verse: str) -> None:
+    await stage_display(verse)
+    for ws in list(active_websockets):
+        try:
+            await ws.send_text(json.dumps({"ref": ref, "text": verse}))
+        except Exception:
+            pass
 
 
 async def stage_display(verse: str) -> None:
@@ -85,29 +94,20 @@ async def stage_display(verse: str) -> None:
         print("❌ Error during send:", e)
 
 
-async def broadcast(ref: str, verse: str):
-    await stage_display(verse)
-    for ws in list(active_websockets):
-        try:
-            await ws.send_text(json.dumps({"ref": ref, "text": verse}))
-        except Exception:
-            pass
-
-
 def test_offline_bible_with_an_invalid_verse() -> None:
-    result = bible("NotABook 1:1")
+    result = verses("NotABook 1:1")
     expected = "Verse not found: NotABook 1:1"
     assert result == expected
 
 
 def test_offline_bible_with_a_single_verse() -> None:
-    result = bible("2 Corinthians 5:17")
+    result = verses("2 Corinthians 5:17")
     expected = "2 Corinthians 5:17 — Therefore if any man be in Christ, he is a new creature: old things are passed away; behold, all things are become new."
     assert result == expected
 
 
 def test_offline_bible_with_a_verse_range() -> None:
-    result = bible("Philippians 4:6-7")
+    result = verses("Philippians 4:6-7")
     expected = (
         "Philippians 4:6 — Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known to God.\n"
         "Philippians 4:7 — And the peace of God, which passes all understanding, shall keep your hearts and minds through Christ Jesus."

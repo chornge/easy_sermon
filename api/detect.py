@@ -161,7 +161,7 @@ def normalize_text(text: str) -> str:
     )
 
 
-def bible_refs(text: str) -> list[str]:
+def references(text: str) -> list[str]:
     text = normalize_text(text)
     results = []
     for ord_raw, book_raw, chap_raw, verse_start_raw, verse_end_raw in REF_RE.findall(
@@ -222,48 +222,48 @@ def bible_refs(text: str) -> list[str]:
 
 
 def test_john_3_vs_16():
-    assert bible_refs("john three verse sixteen") == ["John 3:16"]
+    assert references("john three verse sixteen") == ["John 3:16"]
 
 
 def test_romans_6_vs_23():
-    assert bible_refs("romans six verse twenty three") == ["Romans 6:23"]
+    assert references("romans six verse twenty three") == ["Romans 6:23"]
 
 
 def test_ephesians_2_vs_8():
-    assert bible_refs("ephesians two verse eight") == ["Ephesians 2:8"]
+    assert references("ephesians two verse eight") == ["Ephesians 2:8"]
 
 
 def test_romans_10_vs_9():
-    assert bible_refs("romans ten verse nine") == ["Romans 10:9"]
+    assert references("romans ten verse nine") == ["Romans 10:9"]
 
 
 def test_john_14_vs_6():
-    assert bible_refs("john fourteen verse six") == ["John 14:6"]
+    assert references("john fourteen verse six") == ["John 14:6"]
 
 
 def test_galatians_2_vs_20():
-    assert bible_refs("galatians two verse twenty") == ["Galatians 2:20"]
+    assert references("galatians two verse twenty") == ["Galatians 2:20"]
 
 
 def test_1_john_1_vs_9():
-    assert bible_refs("first john one verse nine") == ["1 John 1:9"]
+    assert references("first john one verse nine") == ["1 John 1:9"]
 
 
 def test_2_corinthians_5_vs_17():
-    assert bible_refs("second corinthians five verse seventeen") == [
+    assert references("second corinthians five verse seventeen") == [
         "2 Corinthians 5:17"
     ]
 
 
 def test_philippians_4_vs_6_and_7():
-    assert bible_refs("philippians four verses six and seven") == ["Philippians 4:6-7"]
+    assert references("philippians four verses six and seven") == ["Philippians 4:6-7"]
 
 
 def test_matthew_28_vs_19_and_20():
-    assert bible_refs("matthew twenty eight verse nineteen through twenty") == [
+    assert references("matthew twenty eight verse nineteen through twenty") == [
         "Matthew 28:19-20"
     ]
 
 
 def test_invalid_verse():
-    assert bible_refs("notabook one verse one") == []
+    assert references("notabook one verse one") == []
