@@ -2,6 +2,8 @@
 
 An application that listens to a live audio stream, recognizes any Bible verses, and displays the Scripture.
 
+### Demo
+
 https://github.com/user-attachments/assets/c03a0ed5-18c1-4bc8-a1c5-6fad6f200304
 
 ## Architecture
