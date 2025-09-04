@@ -10,7 +10,7 @@ import threading
 # import torch
 
 from api.display import register, unregister, verses
-from api.capture import transcript, references
+from api.capture import transcript, initial_reference
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
@@ -41,7 +41,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    passages = [{"reference": ref, "text": verses(ref)} for ref in references]
+    passages = [{"reference": ref, "text": verses(ref)} for ref in initial_reference]
     return templates.TemplateResponse(
         "index.html", {"request": request, "passages": passages}
     )

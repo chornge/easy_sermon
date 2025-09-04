@@ -150,6 +150,7 @@ def normalize_text(text: str) -> str:
         .replace("named maya", "nehemiah")
         .replace("psalms", "psalm")
         .replace("songs of solomon", "song of solomon")
+        .replace("jose", "hosea")
         .replace("joyal", "joel")
         .replace("joelle", "joel")
         .replace("now home", "nahum")
